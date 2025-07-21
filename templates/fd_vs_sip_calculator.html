@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FD vs SIP Calculator - Compare Fixed Deposit vs Mutual Fund SIP Returns</title>
+    <meta name="description" content="Compare Fixed Deposit (FD) vs SIP (Systematic Investment Plan) returns. Calculate and compare maturity values, interest earned, and investment gains with our comprehensive calculator.">
+    <meta name="keywords" content="FD vs SIP calculator, fixed deposit calculator, SIP calculator, investment comparison, mutual fund calculator">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fd_vs_sip_calculator_style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FD vs SIP Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link active">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                                <a href="/loan-amount-calculator/" class="mega-link">Loan Amount Calculator</a>
+                                <a href="/loan-tenure-calculator/" class="mega-link">Loan Tenure Calculator</a>
+                                <a href="/interest-rate-calculator/" class="mega-link">Interest Rate Calculator</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <p>Compare Fixed Deposit vs Systematic Investment Plan returns and make informed investment decisions</p>
+        </header>
+
+        <div class="calculator-container">
+            <!-- Input Sections -->
+            <div class="input-sections">
+                <!-- Fixed Deposit Section -->
+                <div class="section fd-section">
+                    <h2>Fixed Deposit (FD) Details</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Monthly Investment</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="fdMonthlyInvestment" value="5000" min="500" max="100000" step="500">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="fdMonthlyInvestmentSlider" min="500" max="100000" value="5000" step="500" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹500</span>
+                                    <span>₹1L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Duration (Years)</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="fdDurationYears" value="5" min="1" max="30" step="1">
+                                    <span class="input-suffix">Yrs</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="fdDurationYearsSlider" min="1" max="30" value="5" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1yr</span>
+                                    <span>30yrs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">FD Interest Rate</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="fdInterestRate" value="6.5" min="1" max="15" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="fdInterestRateSlider" min="1" max="15" value="6.5" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1%</span>
+                                    <span>15%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Compounding Frequency</label>
+                                <div class="frequency-container">
+                                    <select id="fdCompoundingFrequency" class="frequency-select">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly" selected>Quarterly</option>
+                                        <option value="annually">Annually</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIP Section -->
+                <div class="section sip-section">
+                    <h2>SIP (Mutual Fund) Details</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Monthly SIP Amount</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipMonthlyAmount" value="5000" min="500" max="100000" step="500">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipMonthlyAmountSlider" min="500" max="100000" value="5000" step="500" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹500</span>
+                                    <span>₹1L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Duration (Years)</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipDurationYears" value="5" min="1" max="30" step="1">
+                                    <span class="input-suffix">Yrs</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipDurationYearsSlider" min="1" max="30" value="5" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1yr</span>
+                                    <span>30yrs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Expected CAGR Return %</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipExpectedCagr" value="12" min="1" max="30" step="0.5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipExpectedCagrSlider" min="1" max="30" value="12" step="0.5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1%</span>
+                                    <span>30%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <!-- Results Cards -->
+                <div class="results-card-grid">
+                    <!-- FD Results -->
+                    <div class="result-card fd-card">
+                        <div class="card-content">
+                            <div class="card-icon">🏦</div>
+                            <div class="card-label">FD Total Invested</div>
+                            <div class="card-value" id="fdTotalInvestedResult">₹3,00,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card fd-card">
+                        <div class="card-content">
+                            <div class="card-icon">💰</div>
+                            <div class="card-label">FD Maturity Value</div>
+                            <div class="card-value" id="fdMaturityValueResult">₹3,65,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card fd-card">
+                        <div class="card-content">
+                            <div class="card-icon">📈</div>
+                            <div class="card-label">Interest Earned</div>
+                            <div class="card-value" id="fdInterestEarnedResult">₹65,000</div>
+                        </div>
+                    </div>
+
+                    <!-- SIP Results -->
+                    <div class="result-card sip-card">
+                        <div class="card-content">
+                            <div class="card-icon">📊</div>
+                            <div class="card-label">SIP Total Invested</div>
+                            <div class="card-value" id="sipTotalInvestedResult">₹3,00,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card sip-card">
+                        <div class="card-content">
+                            <div class="card-icon">🎯</div>
+                            <div class="card-label">SIP Estimated Value</div>
+                            <div class="card-value" id="sipEstimatedValueResult">₹4,50,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card sip-card">
+                        <div class="card-content">
+                            <div class="card-icon">💎</div>
+                            <div class="card-label">Gain from SIP</div>
+                            <div class="card-value" id="sipGainResult">₹1,50,000</div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Results -->
+                    <div class="result-card comparison-card">
+                        <div class="card-content">
+                            <div class="card-icon">🏆</div>
+                            <div class="card-label">Better Option</div>
+                            <div class="card-value" id="betterOptionResult">SIP</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card comparison-card">
+                        <div class="card-content">
+                            <div class="card-icon">📊</div>
+                            <div class="card-label">Difference in Returns</div>
+                            <div class="card-value" id="differenceReturnsResult">₹85,000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="chart-analysis-section">
+            <div class="chart-header">
+                <h3>📊 FD vs SIP Comparison Analysis</h3>
+            </div>
+            <div class="analysis-chart-container">
+                <div class="bar-chart-container">
+                    <canvas id="analysisComparisonChart"></canvas>
+                </div>
+                <div class="pie-chart-container">
+                    <h4>Investment vs Returns Breakdown</h4>
+                    <canvas id="breakdownChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-summary">
+                <div class="summary-section">
+                    <h4>🏦 FD Summary</h4>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Interest Earned</span>
+                        <span class="breakdown-value" id="fdNetGain">₹65,000</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Total Return</span>
+                        <span class="breakdown-value" id="fdTotalReturn">21.67%</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Annual Return</span>
+                        <span class="breakdown-value" id="fdAnnualReturn">6.5%</span>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <h4>📈 SIP Summary</h4>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Net Gain</span>
+                        <span class="breakdown-value" id="sipNetGain">₹1,50,000</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Total Return</span>
+                        <span class="breakdown-value" id="sipTotalReturn">50.00%</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Annual Return</span>
+                        <span class="breakdown-value" id="sipAnnualReturn">12.0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Comparison Table -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>📋 Year-wise Comparison Table</h3>
+            </div>
+            <div class="table-container">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="year-header">Year</th>
+                            <th class="fd-header" colspan="3">FD Details</th>
+                            <th class="sip-header" colspan="3">SIP Details</th>
+                            <th class="comparison-header" colspan="2">Comparison</th>
+                        </tr>
+                        <tr class="sub-header">
+                            <th></th>
+                            <th>Invested</th>
+                            <th>Interest</th>
+                            <th>Balance</th>
+                            <th>Invested</th>
+                            <th>Returns</th>
+                            <th>Balance</th>
+                            <th>Better Option</th>
+                            <th>Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Download and Share Section -->
+        <div class="download-section">
+            <h2>📥 Download & Share Results</h2>
+            <p>Save your FD vs SIP comparison results for future reference</p>
+            <div class="download-buttons">
+                <button class="download-btn pdf-btn" onclick="downloadPDF()">
+                    <span class="btn-icon">📄</span>
+                    Download PDF
+                </button>
+                <button class="download-btn excel-btn" onclick="downloadExcel()">
+                    <span class="btn-icon">📊</span>
+                    Download Excel
+                </button>
+                <button class="download-btn share-btn" onclick="shareResults()">
+                    <span class="btn-icon">🔗</span>
+                    Share Results
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Loading and Notification Elements -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Calculating...</p>
+    </div>
+
+    <div id="notification" class="notification">
+        <span id="notificationMessage"></span>
+        <button id="notificationClose">&times;</button>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/fd_vs_sip_calculator_script.js') }}"></script>
+</body>
+</html>
