@@ -44,8 +44,18 @@ Chart.register(centerTextPlugin);
 
 // Initialize sliders and event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if all required elements exist
+    if (!principalAmountInput || !principalAmountSlider || 
+        !interestRateInput || !interestRateSlider || 
+        !tenureYearsInput || !tenureYearsSlider || 
+        !compoundingFrequencySelect) {
+        console.error('Required DOM elements not found');
+        return;
+    }
+    
     setupSliders();
     addEventListeners();
+    // Calculate results on page load
     calculateAndUpdateResults();
     setupMegaMenu();
 });
@@ -102,7 +112,7 @@ function calculateAndUpdateResults() {
         return;
     }
 
-    // Send calculation request
+    // Try server-side calculation first, fallback to client-side
     fetch('/calculate-fd', {
         method: 'POST',
         headers: {
@@ -116,23 +126,89 @@ function calculateAndUpdateResults() {
         updateChart(result);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Server calculation failed, using client-side calculation:', error);
+        // Fallback to client-side calculation
+        const result = calculateFDClientSide(data);
+        updateResultsDisplay(result);
+        updateChart(result);
     });
 }
 
+function calculateFDClientSide(data) {
+    try {
+        const { principal_amount, annual_interest_rate, tenure_years, compounding_frequency } = data;
+        
+        // Convert annual rate to decimal
+        const annual_rate_decimal = annual_interest_rate / 100;
+        
+        // Determine compounding periods per year
+        const compounding_periods = {
+            'monthly': 12,
+            'quarterly': 4,
+            'half-yearly': 2,
+            'yearly': 1
+        };
+        
+        const n = compounding_periods[compounding_frequency] || 4; // Default to quarterly
+        
+        // Calculate maturity amount using compound interest formula
+        // A = P(1 + r/n)^(nt)
+        const maturity_amount = principal_amount * Math.pow((1 + annual_rate_decimal / n), (n * tenure_years));
+        
+        // Calculate interest earned
+        const interest_earned = maturity_amount - principal_amount;
+        
+        // Calculate total return percentage
+        const total_return_percentage = (interest_earned / principal_amount) * 100;
+        
+        return {
+            principal_amount: principal_amount,
+            annual_interest_rate: annual_interest_rate,
+            tenure_years: tenure_years,
+            compounding_frequency: compounding_frequency,
+            maturity_amount: Math.round(maturity_amount * 100) / 100,
+            interest_earned: Math.round(interest_earned * 100) / 100,
+            total_return_percentage: Math.round(total_return_percentage * 100) / 100
+        };
+    } catch (error) {
+        console.error('Client-side calculation error:', error);
+        return {
+            principal_amount: data.principal_amount || 0,
+            maturity_amount: 0,
+            interest_earned: 0,
+            total_return_percentage: 0
+        };
+    }
+}
+
 function updateResultsDisplay(result) {
-    document.getElementById('principalAmountResult').textContent = formatCurrency(result.principal_amount);
-    document.getElementById('interestEarnedResult').textContent = formatCurrency(result.interest_earned);
-    document.getElementById('maturityAmountResult').textContent = formatCurrency(result.maturity_amount);
-    document.getElementById('totalReturnResult').textContent = `${result.total_return_percentage.toFixed(2)}%`;
+    // Update result cards
+    const principalAmountResult = document.getElementById('principalAmountResult');
+    const interestEarnedResult = document.getElementById('interestEarnedResult');
+    const maturityAmountResult = document.getElementById('maturityAmountResult');
+    const totalReturnResult = document.getElementById('totalReturnResult');
+    
+    if (principalAmountResult) principalAmountResult.textContent = formatCurrency(result.principal_amount);
+    if (interestEarnedResult) interestEarnedResult.textContent = formatCurrency(result.interest_earned);
+    if (maturityAmountResult) maturityAmountResult.textContent = formatCurrency(result.maturity_amount);
+    if (totalReturnResult) totalReturnResult.textContent = `${result.total_return_percentage.toFixed(2)}%`;
     
     // Update chart summary
-    document.getElementById('principalAmountDisplay').textContent = formatCurrency(result.principal_amount);
-    document.getElementById('interestAmountDisplay').textContent = formatCurrency(result.interest_earned);
+    const principalAmountDisplay = document.getElementById('principalAmountDisplay');
+    const interestAmountDisplay = document.getElementById('interestAmountDisplay');
+    
+    if (principalAmountDisplay) principalAmountDisplay.textContent = formatCurrency(result.principal_amount);
+    if (interestAmountDisplay) interestAmountDisplay.textContent = formatCurrency(result.interest_earned);
 }
 
 function updateChart(result) {
-    const ctx = document.getElementById('fdBreakupChart').getContext('2d');
+    const chartCanvas = document.getElementById('fdBreakupChart');
+    if (!chartCanvas) {
+        console.warn('Chart canvas not found');
+        return;
+    }
+    
+    const ctx = chartCanvas.getContext('2d');
     
     if (chart) {
         chart.destroy();
