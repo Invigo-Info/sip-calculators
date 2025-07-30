@@ -44,6 +44,15 @@ Chart.register(centerTextPlugin);
 
 // Initialize sliders and event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if all required elements exist
+    if (!monthlyDepositInput || !monthlyDepositSlider || 
+        !interestRateInput || !interestRateSlider || 
+        !tenureYearsInput || !tenureYearsSlider || 
+        !compoundingFrequencySelect) {
+        console.error('Required elements not found');
+        return;
+    }
+    
     setupSliders();
     addEventListeners();
     initialSyncValues(); // Add initial synchronization
@@ -122,10 +131,19 @@ function calculateAndUpdateResults() {
 
     // Validate inputs
     if (data.monthly_deposit <= 0 || data.annual_interest_rate <= 0 || data.tenure_years <= 0) {
+        // Set default results when inputs are invalid
+        const defaultResult = {
+            total_deposits: 0,
+            interest_earned: 0,
+            maturity_amount: 0,
+            total_return_percentage: 0
+        };
+        updateResultsDisplay(defaultResult);
+        updateChart(defaultResult);
         return;
     }
 
-    // Send calculation request
+    // Try server calculation first, fallback to client-side calculation
     fetch('/calculate-rd', {
         method: 'POST',
         headers: {
@@ -133,29 +151,97 @@ function calculateAndUpdateResults() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Server calculation failed');
+        }
+        return response.json();
+    })
     .then(result => {
+        if (result.error) {
+            throw new Error(result.error);
+        }
         updateResultsDisplay(result);
         updateChart(result);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.warn('Server calculation failed, using client-side calculation:', error);
+        // Fallback to client-side calculation
+        const result = calculateRDLocally(data);
+        updateResultsDisplay(result);
+        updateChart(result);
     });
 }
 
+function calculateRDLocally(data) {
+    const { monthly_deposit, annual_interest_rate, tenure_years, compounding_frequency } = data;
+    
+    // Convert annual rate to monthly rate (decimal)
+    const monthlyRate = annual_interest_rate / 12 / 100;
+    
+    // Total number of months
+    const totalMonths = tenure_years * 12;
+    
+    // Calculate total deposits
+    const totalDeposits = monthly_deposit * totalMonths;
+    
+    let maturityAmount;
+    
+    if (monthlyRate === 0) {
+        // If interest rate is 0, maturity amount is just total deposits
+        maturityAmount = totalDeposits;
+    } else {
+        // RD compound interest formula
+        // M = R * [((1+i)^n - 1) / i] * (1+i)
+        const factor = ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) * (1 + monthlyRate);
+        maturityAmount = monthly_deposit * factor;
+    }
+    
+    // Calculate interest earned
+    const interestEarned = maturityAmount - totalDeposits;
+    
+    // Calculate total return percentage
+    const totalReturnPercentage = totalDeposits > 0 ? (interestEarned / totalDeposits) * 100 : 0;
+    
+    return {
+        monthly_deposit: monthly_deposit,
+        annual_interest_rate: annual_interest_rate,
+        tenure_years: tenure_years,
+        compounding_frequency: compounding_frequency,
+        total_deposits: Math.round(totalDeposits * 100) / 100,
+        maturity_amount: Math.round(maturityAmount * 100) / 100,
+        interest_earned: Math.round(interestEarned * 100) / 100,
+        total_return_percentage: Math.round(totalReturnPercentage * 100) / 100
+    };
+}
+
 function updateResultsDisplay(result) {
-    document.getElementById('totalDepositsResult').textContent = formatCurrency(result.total_deposits);
-    document.getElementById('interestEarnedResult').textContent = formatCurrency(result.interest_earned);
-    document.getElementById('maturityAmountResult').textContent = formatCurrency(result.maturity_amount);
-    document.getElementById('totalReturnResult').textContent = `${result.total_return_percentage.toFixed(2)}%`;
+    // Safely update result elements
+    const totalDepositsResult = document.getElementById('totalDepositsResult');
+    const interestEarnedResult = document.getElementById('interestEarnedResult');
+    const maturityAmountResult = document.getElementById('maturityAmountResult');
+    const totalReturnResult = document.getElementById('totalReturnResult');
+    const totalDepositsDisplay = document.getElementById('totalDepositsDisplay');
+    const interestAmountDisplay = document.getElementById('interestAmountDisplay');
+    
+    if (totalDepositsResult) totalDepositsResult.textContent = formatCurrency(result.total_deposits);
+    if (interestEarnedResult) interestEarnedResult.textContent = formatCurrency(result.interest_earned);
+    if (maturityAmountResult) maturityAmountResult.textContent = formatCurrency(result.maturity_amount);
+    if (totalReturnResult) totalReturnResult.textContent = `${result.total_return_percentage.toFixed(2)}%`;
     
     // Update chart summary
-    document.getElementById('totalDepositsDisplay').textContent = formatCurrency(result.total_deposits);
-    document.getElementById('interestAmountDisplay').textContent = formatCurrency(result.interest_earned);
+    if (totalDepositsDisplay) totalDepositsDisplay.textContent = formatCurrency(result.total_deposits);
+    if (interestAmountDisplay) interestAmountDisplay.textContent = formatCurrency(result.interest_earned);
 }
 
 function updateChart(result) {
-    const ctx = document.getElementById('rdBreakupChart').getContext('2d');
+    const chartCanvas = document.getElementById('rdBreakupChart');
+    if (!chartCanvas) {
+        console.warn('Chart canvas not found');
+        return;
+    }
+    
+    const ctx = chartCanvas.getContext('2d');
     
     if (chart) {
         chart.destroy();
@@ -215,6 +301,11 @@ function updateChart(result) {
 }
 
 function formatCurrency(amount) {
+    // Handle null, undefined, or non-numeric values
+    if (amount === null || amount === undefined || isNaN(amount)) {
+        amount = 0;
+    }
+    
     return new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
