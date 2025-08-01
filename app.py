@@ -7985,6 +7985,103 @@ def calculate_goal_sip():
 def inflation_calculator():
     return render_template('inflation_calculator.html')
 
+@app.route('/ppf-calculator/')
+def ppf_calculator():
+    return render_template('ppf_calculator.html')
+
+def calculate_ppf_returns(annual_contribution, duration_years, interest_rate, contribution_frequency):
+    """
+    Calculate PPF returns with compound interest
+    PPF compounds annually irrespective of contribution frequency
+    """
+    try:
+        # Validate inputs
+        if annual_contribution <= 0 or duration_years <= 0 or interest_rate < 0:
+            raise ValueError("Invalid input values")
+        
+        # PPF minimum duration is 15 years
+        if duration_years < 15:
+            raise ValueError("PPF minimum duration is 15 years")
+            
+        # PPF maximum contribution per year is ₹1,50,000
+        if annual_contribution > 150000:
+            raise ValueError("PPF maximum annual contribution is ₹1,50,000")
+            
+        # Calculate based on contribution frequency
+        if contribution_frequency == 'monthly':
+            monthly_contribution = annual_contribution / 12
+            total_annual_contribution = annual_contribution
+        elif contribution_frequency == 'quarterly':
+            quarterly_contribution = annual_contribution / 4
+            total_annual_contribution = annual_contribution
+        else:  # annually
+            total_annual_contribution = annual_contribution
+        
+        # PPF calculation with annual compounding
+        annual_rate = interest_rate / 100
+        total_investment = 0
+        maturity_value = 0
+        year_wise_data = []
+        
+        for year in range(1, duration_years + 1):
+            # Add annual contribution
+            total_investment += total_annual_contribution
+            
+            # Calculate interest on opening balance + contribution
+            # PPF interest is calculated on the minimum balance between 5th and last day of month
+            # For simplicity, we'll calculate interest on the full amount
+            opening_balance = maturity_value
+            closing_balance = (opening_balance + total_annual_contribution) * (1 + annual_rate)
+            
+            interest_earned = closing_balance - opening_balance - total_annual_contribution
+            maturity_value = closing_balance
+            
+            year_wise_data.append({
+                'year': year,
+                'annual_contribution': total_annual_contribution,
+                'opening_balance': round(opening_balance, 2),
+                'interest_earned': round(interest_earned, 2),
+                'closing_balance': round(closing_balance, 2),
+                'total_invested_till_date': round(total_investment, 2)
+            })
+        
+        total_interest = maturity_value - total_investment
+        
+        return {
+            'total_investment': round(total_investment, 2),
+            'total_interest': round(total_interest, 2),
+            'maturity_value': round(maturity_value, 2),
+            'investment_duration': duration_years,
+            'annual_contribution': annual_contribution,
+            'contribution_frequency': contribution_frequency,
+            'interest_rate': interest_rate,
+            'year_wise_data': year_wise_data
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating PPF returns: {str(e)}")
+
+@app.route('/calculate-ppf', methods=['POST'])
+def calculate_ppf_route():
+    try:
+        data = request.get_json()
+        
+        annual_contribution = float(data.get('annual_contribution', 0))
+        duration_years = int(data.get('duration_years', 15))
+        interest_rate = float(data.get('interest_rate', 7.1))
+        contribution_frequency = data.get('contribution_frequency', 'monthly')
+        
+        # Calculate PPF returns
+        result = calculate_ppf_returns(annual_contribution, duration_years, interest_rate, contribution_frequency)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
 @app.route('/gold-sip-calculator/')
 def gold_sip_calculator():
     return render_template('gold_sip_calculator.html')
@@ -9854,6 +9951,110 @@ def calculate_stock_return():
 def xirr_calculator():
     return render_template('xirr_calculator.html')
 
+@app.route('/pradhan-mantri-shram-yogi-maandhan-calculator/')
+def pradhan_mantri_shram_yogi_maandhan_calculator():
+    return render_template('pradhan_mantri_shram_yogi_maandhan_calculator.html')
+
+@app.route('/pradhan-mantri-vaya-vandana-yojana-calculator/')
+def pradhan_mantri_vaya_vandana_yojana_calculator():
+    return render_template('pradhan_mantri_vaya_vandana_yojana_calculator.html')
+
+def calculate_pmsym_returns(joining_age, pension_amount, interest_rate):
+    """
+    Calculate PMSYM (Pradhan Mantri Shram Yogi Maandhan) returns
+    PMSYM Features:
+    - Age at joining: 18-40 years
+    - Monthly contribution: ₹55 to ₹110 based on age (calculated automatically)
+    - Government contribution: 50% of subscriber's contribution
+    - Pension amount: ₹3000 per month after 60 years (fixed)
+    - Interest rate: 8% per annum (fixed)
+    """
+    
+    # Validate age range
+    if joining_age < 18 or joining_age > 40:
+        return {
+            'error': 'Joining age must be between 18 and 40 years'
+        }
+    
+    # Fixed PMSYM parameters
+    pension_amount = 3000  # Fixed pension amount
+    interest_rate = 8.0    # Fixed interest rate
+    
+    # Calculate years of contribution
+    years_of_contribution = int(60 - joining_age)
+    
+    # PMSYM contribution structure based on age
+    if joining_age <= 29:
+        monthly_contribution = 55
+    elif joining_age <= 30:
+        monthly_contribution = 60
+    elif joining_age <= 31:
+        monthly_contribution = 65
+    elif joining_age <= 32:
+        monthly_contribution = 70
+    elif joining_age <= 33:
+        monthly_contribution = 75
+    elif joining_age <= 34:
+        monthly_contribution = 80
+    elif joining_age <= 35:
+        monthly_contribution = 85
+    elif joining_age <= 36:
+        monthly_contribution = 90
+    elif joining_age <= 37:
+        monthly_contribution = 95
+    elif joining_age <= 38:
+        monthly_contribution = 100
+    elif joining_age <= 39:
+        monthly_contribution = 105
+    else:
+        monthly_contribution = 110
+    
+    # Government contribution is 50% of subscriber contribution
+    government_contribution = monthly_contribution * 0.5
+    
+    # Calculate total contributions
+    total_subscriber_contribution = monthly_contribution * 12 * years_of_contribution
+    total_government_contribution = government_contribution * 12 * years_of_contribution
+    total_contribution = total_subscriber_contribution + total_government_contribution
+    
+    # Generate yearly breakdown
+    yearly_breakdown = []
+    current_corpus = 0
+    annual_rate = interest_rate / 100
+    monthly_rate = annual_rate / 12
+    
+    for year in range(1, years_of_contribution + 1):
+        # Calculate monthly progression for this year
+        for month in range(12):
+            monthly_total = monthly_contribution + government_contribution
+            current_corpus += monthly_total
+            current_corpus = current_corpus * (1 + monthly_rate)
+        
+        yearly_breakdown.append({
+            'year': year,
+            'age': joining_age + year,
+            'yearly_subscriber_contribution': monthly_contribution * 12,
+            'yearly_government_contribution': government_contribution * 12,
+            'total_yearly_contribution': (monthly_contribution + government_contribution) * 12,
+            'corpus_at_year_end': current_corpus,
+            'cumulative_subscriber_contribution': monthly_contribution * 12 * year,
+            'cumulative_government_contribution': government_contribution * 12 * year
+        })
+    
+    return {
+        'joining_age': joining_age,
+        'monthly_contribution': monthly_contribution,
+        'government_contribution': government_contribution,
+        'pension_amount': pension_amount,
+        'interest_rate': interest_rate,
+        'years_of_contribution': years_of_contribution,
+        'total_subscriber_contribution': round(total_subscriber_contribution, 2),
+        'total_government_contribution': round(total_government_contribution, 2),
+        'total_contribution': round(total_contribution, 2),
+        'corpus_at_60': round(current_corpus, 2),
+        'yearly_breakdown': yearly_breakdown
+    }
+
 def calculate_xirr_iterative(cash_flows):
     """
     Calculate XIRR using Newton-Raphson method (similar to Excel's XIRR)
@@ -9949,6 +10150,25 @@ def calculate_xirr_summary_data(cash_flows):
         'cumulative_flows': cumulative_flows,
         'cash_flow_count': len(cash_flows)
     }
+
+@app.route('/calculate-pmsym', methods=['POST'])
+def calculate_pmsym():
+    try:
+        data = request.get_json()
+        joining_age = int(float(data.get('joining_age', 25)))
+        pension_amount = 3000  # Fixed pension amount
+        interest_rate = 8.0    # Fixed interest rate
+        
+        # Calculate PMSYM returns
+        result = calculate_pmsym_returns(joining_age, pension_amount, interest_rate)
+        
+        if 'error' in result:
+            return jsonify(result)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': f'Calculation error: {str(e)}'})
 
 @app.route('/calculate-xirr-analysis', methods=['POST'])
 def calculate_xirr_analysis():
