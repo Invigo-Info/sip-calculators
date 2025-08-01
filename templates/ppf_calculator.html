@@ -121,18 +121,31 @@
                     <div class="input-grid">
                         <div class="input-group">
                             <div class="input-row">
-                                <label class="input-label">Annual Contribution Amount</label>
+                                <label class="input-label">Contribution Frequency</label>
+                            </div>
+                            <div class="frequency-container">
+                                <select id="contributionFrequency" class="frequency-select">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label" id="contributionAmountLabel">Contribution Amount</label>
                                 <div class="input-field-container">
-                                    <input type="number" id="annualContribution" value="150000" min="500" max="150000" step="500">
+                                    <input type="number" id="annualContribution" value="12500" min="500" max="150000" step="500">
                                     <span class="input-suffix">₹</span>
                                 </div>
                             </div>
                             <div class="slider-container">
-                                <input type="range" id="annualContributionSlider" min="500" max="150000" value="150000" step="500" class="custom-slider">
+                                <input type="range" id="annualContributionSlider" min="500" max="150000" value="12500" step="500" class="custom-slider">
                                 <div class="slider-track"></div>
                                 <div class="slider-labels">
                                     <span>₹500</span>
-                                    <span>₹1.5L</span>
+                                    <span id="maxContributionLabel">₹1.5L</span>
                                 </div>
                             </div>
                         </div>
@@ -170,19 +183,6 @@
                                     <span>6%</span>
                                     <span>9%</span>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <div class="input-row">
-                                <label class="input-label">Contribution Frequency</label>
-                            </div>
-                            <div class="frequency-container">
-                                <select id="contributionFrequency" class="frequency-select">
-                                    <option value="monthly">Monthly</option>
-                                    <option value="quarterly">Quarterly</option>
-                                    <option value="annually">Annually</option>
-                                </select>
                             </div>
                         </div>
                     </div>
