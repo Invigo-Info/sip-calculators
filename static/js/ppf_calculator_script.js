@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupPPFSliders();
     addPPFEventListeners();
     initialSyncPPFValues();
+    updateContributionLabelsAndLimits();
     calculateAndUpdatePPFResults();
     setupPPFMegaMenu();
     setupPPFTableToggle();
@@ -110,18 +111,113 @@ function addPPFEventListeners() {
     });
 
     // Add listener for contribution frequency
-    contributionFrequencySelect.addEventListener('change', calculateAndUpdatePPFResults);
+    contributionFrequencySelect.addEventListener('change', function() {
+        updateContributionLabelsAndLimits();
+        calculateAndUpdatePPFResults();
+    });
+}
+
+function updateContributionLabelsAndLimits() {
+    const frequency = contributionFrequencySelect.value;
+    const contributionLabel = document.getElementById('contributionAmountLabel');
+    const maxLabel = document.getElementById('maxContributionLabel');
+    
+    let labelText, minAmount, maxAmount, step, defaultValue;
+    
+    switch (frequency) {
+        case 'monthly':
+            labelText = 'Monthly Contribution Amount';
+            minAmount = 500;
+            maxAmount = 12500;
+            step = 100;
+            defaultValue = 12500;
+            maxLabel.textContent = '₹12.5K';
+            break;
+        case 'quarterly':
+            labelText = 'Quarterly Contribution Amount';
+            minAmount = 1250;
+            maxAmount = 37500;
+            step = 250;
+            defaultValue = 37500;
+            maxLabel.textContent = '₹37.5K';
+            break;
+        case 'annually':
+            labelText = 'Annual Contribution Amount';
+            minAmount = 500;
+            maxAmount = 150000;
+            step = 500;
+            defaultValue = 150000;
+            maxLabel.textContent = '₹1.5L';
+            break;
+        default:
+            labelText = 'Monthly Contribution Amount';
+            minAmount = 500;
+            maxAmount = 12500;
+            step = 100;
+            defaultValue = 12500;
+            maxLabel.textContent = '₹12.5K';
+    }
+    
+    // Update label
+    contributionLabel.textContent = labelText;
+    
+    // Update input and slider limits
+    annualContributionInput.min = minAmount;
+    annualContributionInput.max = maxAmount;
+    annualContributionInput.step = step;
+    annualContributionSlider.min = minAmount;
+    annualContributionSlider.max = maxAmount;
+    annualContributionSlider.step = step;
+    
+    // Set default value if current value is out of range
+    const currentValue = parseFloat(annualContributionInput.value) || 0;
+    if (currentValue < minAmount || currentValue > maxAmount) {
+        annualContributionInput.value = defaultValue;
+        annualContributionSlider.value = defaultValue;
+    }
 }
 
 function calculateAndUpdatePPFResults() {
-    const annualContribution = parseFloat(annualContributionInput.value) || 0;
+    const contributionAmount = parseFloat(annualContributionInput.value) || 0;
     const investmentDuration = parseInt(investmentDurationInput.value) || 15;
     const interestRate = parseFloat(interestRateInput.value) || 7.1;
     const contributionFrequency = contributionFrequencySelect.value;
 
-    // Validate inputs
-    if (annualContribution < 500 || annualContribution > 150000) {
-        showPPFError('Annual contribution must be between ₹500 and ₹1,50,000');
+    // Calculate annual contribution based on frequency
+    let annualContribution;
+    let minAmount, maxAmount;
+    
+    switch (contributionFrequency) {
+        case 'monthly':
+            annualContribution = contributionAmount * 12;
+            minAmount = 500;
+            maxAmount = 12500; // Max monthly = ₹12,500 (₹1.5L annually)
+            break;
+        case 'quarterly':
+            annualContribution = contributionAmount * 4;
+            minAmount = 1250; // Min quarterly = ₹1,250 (₹500*12/4)
+            maxAmount = 37500; // Max quarterly = ₹37,500 (₹1.5L annually)
+            break;
+        case 'annually':
+            annualContribution = contributionAmount;
+            minAmount = 500;
+            maxAmount = 150000; // Max annual = ₹1.5L
+            break;
+        default:
+            annualContribution = contributionAmount * 12;
+            minAmount = 500;
+            maxAmount = 12500;
+    }
+
+    // Validate inputs based on frequency
+    if (contributionAmount < minAmount || contributionAmount > maxAmount) {
+        const freqText = contributionFrequency.charAt(0).toUpperCase() + contributionFrequency.slice(1);
+        showPPFError(`${freqText} contribution must be between ₹${minAmount.toLocaleString()} and ₹${maxAmount.toLocaleString()}`);
+        return;
+    }
+
+    if (annualContribution > 150000) {
+        showPPFError('Total annual contribution cannot exceed ₹1,50,000');
         return;
     }
 
@@ -140,7 +236,8 @@ function calculateAndUpdatePPFResults() {
             annual_contribution: annualContribution,
             duration_years: investmentDuration,
             interest_rate: interestRate,
-            contribution_frequency: contributionFrequency
+            contribution_frequency: contributionFrequency,
+            contribution_amount: contributionAmount
         })
     })
     .then(response => response.json())
@@ -368,29 +465,47 @@ function downloadPPFPDF() {
     
     // Add current values
     doc.setFontSize(12);
-    const annualContribution = parseFloat(annualContributionInput.value) || 0;
+    const contributionAmount = parseFloat(annualContributionInput.value) || 0;
     const investmentDuration = parseInt(investmentDurationInput.value) || 15;
     const interestRate = parseFloat(interestRateInput.value) || 7.1;
     const contributionFrequency = contributionFrequencySelect.value;
     
-    doc.text(`Annual Contribution: ${formatPPFCurrency(annualContribution)}`, 20, 40);
-    doc.text(`Investment Duration: ${investmentDuration} years`, 20, 50);
-    doc.text(`Interest Rate: ${interestRate}%`, 20, 60);
-    doc.text(`Contribution Frequency: ${contributionFrequency}`, 20, 70);
+    // Calculate annual contribution
+    let annualContribution;
+    switch (contributionFrequency) {
+        case 'monthly':
+            annualContribution = contributionAmount * 12;
+            break;
+        case 'quarterly':
+            annualContribution = contributionAmount * 4;
+            break;
+        case 'annually':
+            annualContribution = contributionAmount;
+            break;
+        default:
+            annualContribution = contributionAmount * 12;
+    }
+    
+    const freqText = contributionFrequency.charAt(0).toUpperCase() + contributionFrequency.slice(1);
+    doc.text(`${freqText} Contribution: ${formatPPFCurrency(contributionAmount)}`, 20, 40);
+    doc.text(`Annual Contribution: ${formatPPFCurrency(annualContribution)}`, 20, 50);
+    doc.text(`Investment Duration: ${investmentDuration} years`, 20, 60);
+    doc.text(`Interest Rate: ${interestRate}%`, 20, 70);
+    doc.text(`Contribution Frequency: ${freqText}`, 20, 80);
     
     // Add results
     const result = calculatePPFReturnsClientSide(annualContribution, investmentDuration, interestRate, contributionFrequency);
-    doc.text(`Total Investment: ${formatPPFCurrency(result.total_investment)}`, 20, 100);
-    doc.text(`Interest Earned: ${formatPPFCurrency(result.total_interest)}`, 20, 110);
-    doc.text(`Maturity Value: ${formatPPFCurrency(result.maturity_value)}`, 20, 120);
+    doc.text(`Total Investment: ${formatPPFCurrency(result.total_investment)}`, 20, 110);
+    doc.text(`Interest Earned: ${formatPPFCurrency(result.total_interest)}`, 20, 120);
+    doc.text(`Maturity Value: ${formatPPFCurrency(result.maturity_value)}`, 20, 130);
     
     // Add year-wise breakdown header
     doc.setFontSize(14);
-    doc.text('Year-wise Breakdown:', 20, 150);
+    doc.text('Year-wise Breakdown:', 20, 160);
     
     // Add table headers
     doc.setFontSize(10);
-    let yPos = 160;
+    let yPos = 170;
     doc.text('Year', 20, yPos);
     doc.text('Contribution', 45, yPos);
     doc.text('Opening Balance', 80, yPos);
