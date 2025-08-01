@@ -8007,15 +8007,8 @@ def calculate_ppf_returns(annual_contribution, duration_years, interest_rate, co
         if annual_contribution > 150000:
             raise ValueError("PPF maximum annual contribution is ₹1,50,000")
             
-        # Calculate based on contribution frequency
-        if contribution_frequency == 'monthly':
-            monthly_contribution = annual_contribution / 12
-            total_annual_contribution = annual_contribution
-        elif contribution_frequency == 'quarterly':
-            quarterly_contribution = annual_contribution / 4
-            total_annual_contribution = annual_contribution
-        else:  # annually
-            total_annual_contribution = annual_contribution
+        # Total annual contribution is already calculated in frontend
+        total_annual_contribution = annual_contribution
         
         # PPF calculation with annual compounding
         annual_rate = interest_rate / 100
@@ -8052,7 +8045,7 @@ def calculate_ppf_returns(annual_contribution, duration_years, interest_rate, co
             'total_interest': round(total_interest, 2),
             'maturity_value': round(maturity_value, 2),
             'investment_duration': duration_years,
-            'annual_contribution': annual_contribution,
+            'annual_contribution': total_annual_contribution,
             'contribution_frequency': contribution_frequency,
             'interest_rate': interest_rate,
             'year_wise_data': year_wise_data
