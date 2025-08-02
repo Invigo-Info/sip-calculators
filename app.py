@@ -10215,5 +10215,238 @@ def calculate_xirr_analysis():
             'error': str(e)
         }), 400
 
+@app.route('/income-tax-calculator-with-old-and-new-tax-regime/')
+def income_tax_calculator_with_old_and_new_tax_regime():
+    return render_template('income_tax_calculator_with_old_and_new_tax_regime.html')
+
+def calculate_income_tax_old_new_regime(financial_year, age_group, income_details, deductions):
+    """
+    Calculate income tax for both old and new tax regimes
+    """
+    # Total income calculation
+    total_income = (
+        income_details.get('salary', 0) +
+        income_details.get('rental_income', 0) +
+        income_details.get('digital_asset_income', 0) +
+        income_details.get('other_income', 0) -
+        income_details.get('exempt_allowances', 0) -
+        income_details.get('self_occupied_property_loss', 0)
+    )
+    
+    # Interest on home loan for let-out property reduces rental income
+    rental_income_net = income_details.get('rental_income', 0) - income_details.get('interest_home_loan_letout', 0)
+    total_income = (
+        income_details.get('salary', 0) +
+        max(0, rental_income_net) +
+        income_details.get('digital_asset_income', 0) +
+        income_details.get('other_income', 0) -
+        income_details.get('exempt_allowances', 0) -
+        income_details.get('self_occupied_property_loss', 0)
+    )
+    
+    # OLD TAX REGIME CALCULATION
+    old_regime_tax = calculate_old_regime_tax(total_income, age_group, deductions, financial_year)
+    
+    # NEW TAX REGIME CALCULATION
+    new_regime_tax = calculate_new_regime_tax(total_income, age_group, financial_year)
+    
+    # Calculate savings/difference
+    savings_amount = old_regime_tax['total_tax'] - new_regime_tax['total_tax']
+    better_regime = 'New Regime' if savings_amount > 0 else 'Old Regime'
+    if abs(savings_amount) < 100:
+        better_regime = 'Both Similar'
+    
+    return {
+        'total_income': total_income,
+        'old_regime': old_regime_tax,
+        'new_regime': new_regime_tax,
+        'savings_amount': abs(savings_amount),
+        'better_regime': better_regime,
+        'financial_year': financial_year,
+        'age_group': age_group
+    }
+
+def calculate_old_regime_tax(total_income, age_group, deductions, financial_year):
+    """
+    Calculate tax under old regime with deductions
+    """
+    # Apply Section 80C, 80D, etc. deductions
+    section_80c = min(deductions.get('section_80c', 0), 150000)
+    section_80d = min(deductions.get('section_80d', 0), get_80d_limit(age_group))
+    section_80g = deductions.get('section_80g', 0)  # 100% deduction for donations
+    section_80tta = min(deductions.get('section_80tta', 0), 10000)
+    section_80ccd1 = min(deductions.get('section_80ccd1', 0), 50000)
+    section_80ccd2 = deductions.get('section_80ccd2', 0)  # No limit for employer NPS
+    section_80eea = min(deductions.get('section_80eea', 0), 150000)
+    other_deductions = deductions.get('other_deductions', 0)
+    
+    total_deductions = (section_80c + section_80d + section_80g + section_80tta + 
+                       section_80ccd1 + section_80ccd2 + section_80eea + other_deductions)
+    
+    # Taxable income after deductions
+    taxable_income = max(0, total_income - total_deductions)
+    
+    # Calculate tax based on slabs for old regime
+    income_tax = calculate_tax_slabs_old_regime(taxable_income, age_group, financial_year)
+    
+    # Add cess (4% on income tax)
+    cess = income_tax * 0.04
+    total_tax = income_tax + cess
+    
+    return {
+        'taxable_income': taxable_income,
+        'total_deductions': total_deductions,
+        'income_tax': income_tax,
+        'cess': cess,
+        'total_tax': total_tax,
+        'deduction_breakdown': {
+            'section_80c': section_80c,
+            'section_80d': section_80d,
+            'section_80g': section_80g,
+            'section_80tta': section_80tta,
+            'section_80ccd1': section_80ccd1,
+            'section_80ccd2': section_80ccd2,
+            'section_80eea': section_80eea,
+            'other_deductions': other_deductions
+        }
+    }
+
+def calculate_new_regime_tax(total_income, age_group, financial_year):
+    """
+    Calculate tax under new regime (no deductions but lower rates)
+    """
+    # Standard deduction of Rs. 50,000 for salaried individuals
+    standard_deduction = 50000
+    taxable_income = max(0, total_income - standard_deduction)
+    
+    # Calculate tax based on new regime slabs
+    income_tax = calculate_tax_slabs_new_regime(taxable_income, financial_year)
+    
+    # Add cess (4% on income tax)
+    cess = income_tax * 0.04
+    total_tax = income_tax + cess
+    
+    return {
+        'taxable_income': taxable_income,
+        'standard_deduction': standard_deduction,
+        'income_tax': income_tax,
+        'cess': cess,
+        'total_tax': total_tax
+    }
+
+def calculate_tax_slabs_old_regime(taxable_income, age_group, financial_year):
+    """
+    Calculate income tax based on old regime slabs
+    """
+    if financial_year in ['FY 2024-2025', 'FY 2025-2026']:
+        if age_group == '0-60':
+            # Below 60 years
+            if taxable_income <= 250000:
+                return 0
+            elif taxable_income <= 500000:
+                return (taxable_income - 250000) * 0.05
+            elif taxable_income <= 1000000:
+                return 12500 + (taxable_income - 500000) * 0.20
+            else:
+                return 112500 + (taxable_income - 1000000) * 0.30
+        elif age_group == '60-80':
+            # Senior citizen (60-80 years)
+            if taxable_income <= 300000:
+                return 0
+            elif taxable_income <= 500000:
+                return (taxable_income - 300000) * 0.05
+            elif taxable_income <= 1000000:
+                return 10000 + (taxable_income - 500000) * 0.20
+            else:
+                return 110000 + (taxable_income - 1000000) * 0.30
+        else:
+            # Super senior citizen (80+ years)
+            if taxable_income <= 500000:
+                return 0
+            elif taxable_income <= 1000000:
+                return (taxable_income - 500000) * 0.20
+            else:
+                return 100000 + (taxable_income - 1000000) * 0.30
+    
+    return 0
+
+def calculate_tax_slabs_new_regime(taxable_income, financial_year):
+    """
+    Calculate income tax based on new regime slabs
+    """
+    if financial_year in ['FY 2024-2025', 'FY 2025-2026']:
+        # New regime slabs (same for all age groups)
+        if taxable_income <= 300000:
+            return 0
+        elif taxable_income <= 600000:
+            return (taxable_income - 300000) * 0.05
+        elif taxable_income <= 900000:
+            return 15000 + (taxable_income - 600000) * 0.10
+        elif taxable_income <= 1200000:
+            return 45000 + (taxable_income - 900000) * 0.15
+        elif taxable_income <= 1500000:
+            return 90000 + (taxable_income - 1200000) * 0.20
+        else:
+            return 150000 + (taxable_income - 1500000) * 0.30
+    
+    return 0
+
+def get_80d_limit(age_group):
+    """
+    Get Section 80D deduction limit based on age group
+    """
+    if age_group == '80+':
+        return 50000  # For super senior citizens
+    elif age_group == '60-80':
+        return 50000  # For senior citizens
+    else:
+        return 25000  # For individuals below 60
+
+@app.route('/calculate-income-tax-old-new-regime', methods=['POST'])
+def calculate_income_tax_old_new_regime_api():
+    try:
+        data = request.get_json()
+        
+        # Extract basic details
+        financial_year = data.get('financial_year', 'FY 2024-2025')
+        age_group = data.get('age_group', '0-60')
+        
+        # Extract income details
+        income_details = {
+            'salary': float(data.get('salary', 0)),
+            'exempt_allowances': float(data.get('exempt_allowances', 0)),
+            'self_occupied_property_loss': float(data.get('self_occupied_property_loss', 0)),
+            'rental_income': float(data.get('rental_income', 0)),
+            'digital_asset_income': float(data.get('digital_asset_income', 0)),
+            'interest_home_loan_letout': float(data.get('interest_home_loan_letout', 0)),
+            'other_income': float(data.get('other_income', 0))
+        }
+        
+        # Extract deductions
+        deductions = {
+            'section_80c': float(data.get('section_80c', 0)),
+            'section_80d': float(data.get('section_80d', 0)),
+            'section_80g': float(data.get('section_80g', 0)),
+            'section_80tta': float(data.get('section_80tta', 0)),
+            'section_80ccd1': float(data.get('section_80ccd1', 0)),
+            'section_80ccd2': float(data.get('section_80ccd2', 0)),
+            'section_80eea': float(data.get('section_80eea', 0)),
+            'other_deductions': float(data.get('other_deductions', 0))
+        }
+        
+        # Calculate tax
+        result = calculate_income_tax_old_new_regime(financial_year, age_group, income_details, deductions)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 400
+
 if __name__ == '__main__':
     app.run(debug=True) 
