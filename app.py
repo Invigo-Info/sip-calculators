@@ -10448,5 +10448,94 @@ def calculate_income_tax_old_new_regime_api():
             'error': str(e)
         }), 400
 
+def calculate_hra_exemption(basic_salary_annual, da_received_annual, hra_received_annual, rent_paid_annual, city_type):
+    """
+    Calculate HRA exemption based on Income Tax rules (Annual basis as per ClearTax)
+    
+    HRA exemption is the minimum of:
+    1. Actual HRA received
+    2. 50% of basic salary (Metro) or 40% (Non-Metro)  
+    3. Rent paid - 10% of total salary (Basic + DA)
+    
+    Returns:
+    - HRA exempt amount
+    - Taxable HRA amount
+    """
+    try:
+        # Validate inputs
+        if basic_salary_annual <= 0:
+            raise ValueError("Basic salary must be greater than 0")
+        if da_received_annual < 0:
+            raise ValueError("Dearness Allowance cannot be negative")
+        if hra_received_annual < 0:
+            raise ValueError("HRA received cannot be negative")
+        if rent_paid_annual < 0:
+            raise ValueError("Rent paid cannot be negative")
+        if city_type not in ['metro', 'non-metro']:
+            raise ValueError("City type must be 'metro' or 'non-metro'")
+        
+        # Calculate total salary (Basic + DA) as per ClearTax calculation
+        total_salary_annual = basic_salary_annual + da_received_annual
+        
+        # Calculate the three components for HRA exemption
+        # 1. Actual HRA received
+        actual_hra = hra_received_annual
+        
+        # 2. Percentage of basic salary based on city type (Note: Only basic salary, not total)
+        if city_type == 'metro':
+            salary_percentage = basic_salary_annual * 0.50  # 50% for metro cities
+        else:
+            salary_percentage = basic_salary_annual * 0.40  # 40% for non-metro cities
+        
+        # 3. Rent paid minus 10% of total salary (Basic + DA)
+        ten_percent_total_salary = total_salary_annual * 0.10
+        rent_minus_ten_percent = max(0, rent_paid_annual - ten_percent_total_salary)
+        
+        # HRA exemption is minimum of the three
+        hra_exempt = min(actual_hra, salary_percentage, rent_minus_ten_percent)
+        
+        # Taxable HRA is HRA received minus exempt amount
+        taxable_hra = max(0, hra_received_annual - hra_exempt)
+        
+        return {
+            'basic_salary_annual': basic_salary_annual,
+            'da_received_annual': da_received_annual,
+            'total_salary_annual': total_salary_annual,
+            'hra_received_annual': hra_received_annual,
+            'rent_paid_annual': rent_paid_annual,
+            'city_type': city_type,
+            'actual_hra': round(actual_hra, 2),
+            'salary_percentage': round(salary_percentage, 2),
+            'rent_minus_ten_percent': round(rent_minus_ten_percent, 2),
+            'hra_exempt': round(hra_exempt, 2),
+            'taxable_hra': round(taxable_hra, 2),
+            'ten_percent_total_salary': round(ten_percent_total_salary, 2)
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating HRA exemption: {str(e)}")
+
+@app.route('/calculate-hra', methods=['POST'])
+def calculate_hra_route():
+    try:
+        data = request.get_json()
+        
+        basic_salary_annual = float(data.get('basic_salary_annual', 0))
+        da_received_annual = float(data.get('da_received_annual', 0))
+        hra_received_annual = float(data.get('hra_received_annual', 0))
+        rent_paid_annual = float(data.get('rent_paid_annual', 0))
+        city_type = data.get('city_type', 'metro').lower()
+        
+        # Calculate HRA exemption
+        result = calculate_hra_exemption(basic_salary_annual, da_received_annual, hra_received_annual, rent_paid_annual, city_type)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
 if __name__ == '__main__':
     app.run(debug=True) 
