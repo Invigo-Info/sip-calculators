@@ -10447,6 +10447,10 @@ def calculate_income_tax_old_new_regime_api():
             'status': 'error',
             'error': str(e)
         }), 400
+        
+@app.route('/hra-calculator/')
+def hra_calculator():
+    return render_template('hra_calculator.html')
 
 def calculate_hra_exemption(basic_salary_annual, da_received_annual, hra_received_annual, rent_paid_annual, city_type):
     """
