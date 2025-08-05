@@ -10722,6 +10722,8 @@ def calculate_tds_route():
             'status': 'error',
             'error': str(e)
         }), 400
+
+
         
 @app.route('/hra-calculator/')
 def hra_calculator():
