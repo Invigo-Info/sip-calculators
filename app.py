@@ -10447,6 +10447,281 @@ def calculate_income_tax_old_new_regime_api():
             'status': 'error',
             'error': str(e)
         }), 400
+
+
+@app.route('/tds-calculator/')
+def tds_calculator():
+    return render_template('tds_calculator.html')
+
+def calculate_tds_amount(payment_type, payment_amount, pan_available, category, regime_type='old'):
+    """
+    Calculate TDS amount based on payment type, PAN availability, category, and tax regime
+    
+    Args:
+        payment_type: Type of payment (e.g., '192A', '194A', etc.)
+        payment_amount: Amount of payment
+        pan_available: Whether PAN is available ('yes' or 'no')
+        category: 'individual' or 'other'
+        regime_type: Tax regime type ('old' or 'new')
+    
+    Returns:
+        dict: TDS calculation result
+    """
+    try:
+        # Validate inputs
+        if payment_amount <= 0:
+            raise ValueError("Payment amount must be greater than 0")
+        
+        # TDS rates based on section, PAN availability, and tax regime
+        old_regime_tds_rates = {
+            '192A': {  # Payment of accumulated balance due to an employee
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194A': {  # Interest other than securities
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 40000 if category == 'individual' else 40000
+            },
+            '194H': {  # Commission or brokerage
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194I': {  # Rent (plant/machinery/building)
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 240000
+            },
+            '194J': {  # Fees for professional/technical services
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194C': {  # Payment to contractors
+                'pan_available': 1.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194D': {  # Insurance commission
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194G': {  # Commission on sale of lottery tickets
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194K': {  # Payment in respect of units
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 25000
+            },
+            '194LA': {  # Payment of compensation for compulsory acquisition
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 250000
+            },
+            '194M': {  # Payment of certain sums by e-commerce operator
+                'pan_available': 0.1,
+                'pan_not_available': 5.0,
+                'threshold': 500000
+            },
+            '194N': {  # Payment in respect of cash withdrawal
+                'pan_available': 2.0,
+                'pan_not_available': 2.0,
+                'threshold': 1000000
+            },
+            '194O': {  # Payment by e-commerce operator to e-commerce participant
+                'pan_available': 1.0,
+                'pan_not_available': 5.0,
+                'threshold': 500000
+            }
+        }
+
+        # New regime TDS rates (some sections may have different rates/thresholds)
+        new_regime_tds_rates = {
+            '192A': {  # Payment of accumulated balance due to an employee
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194A': {  # Interest other than securities - progressive slab rates in new regime
+                'pan_available': 'slab',  # Use slab structure
+                'pan_not_available': 20.0,
+                'threshold': 50000 if category == 'individual' else 50000,
+                'slabs': {
+                    'pan_available': [
+                        {'min': 0, 'max': 50000, 'rate': 0.0},
+                        {'min': 50001, 'max': 500000, 'rate': 10.0},
+                        {'min': 500001, 'max': float('inf'), 'rate': 15.0}
+                    ],
+                    'pan_not_available': [
+                        {'min': 0, 'max': 50000, 'rate': 0.0},
+                        {'min': 50001, 'max': float('inf'), 'rate': 20.0}
+                    ]
+                }
+            },
+            '194H': {  # Commission or brokerage
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194I': {  # Rent (plant/machinery/building)
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 240000
+            },
+            '194J': {  # Fees for professional/technical services
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194C': {  # Payment to contractors
+                'pan_available': 1.0,
+                'pan_not_available': 20.0,
+                'threshold': 30000
+            },
+            '194D': {  # Insurance commission
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194G': {  # Commission on sale of lottery tickets
+                'pan_available': 5.0,
+                'pan_not_available': 20.0,
+                'threshold': 15000
+            },
+            '194K': {  # Payment in respect of units
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 25000
+            },
+            '194LA': {  # Payment of compensation for compulsory acquisition
+                'pan_available': 10.0,
+                'pan_not_available': 20.0,
+                'threshold': 250000
+            },
+            '194M': {  # Payment of certain sums by e-commerce operator
+                'pan_available': 0.1,
+                'pan_not_available': 5.0,
+                'threshold': 500000
+            },
+            '194N': {  # Payment in respect of cash withdrawal
+                'pan_available': 2.0,
+                'pan_not_available': 2.0,
+                'threshold': 1000000
+            },
+            '194O': {  # Payment by e-commerce operator to e-commerce participant
+                'pan_available': 1.0,
+                'pan_not_available': 5.0,
+                'threshold': 500000
+            }
+        }
+
+        # Choose the appropriate rates based on regime type
+        tds_rates = new_regime_tds_rates if regime_type == 'new' else old_regime_tds_rates
+        
+        # Get TDS rate configuration
+        if payment_type not in tds_rates:
+            raise ValueError(f"Invalid payment type: {payment_type}")
+        
+        rate_config = tds_rates[payment_type]
+        threshold = rate_config['threshold']
+        
+        # Determine applicable rate and calculate TDS
+        pan_key = 'pan_available' if pan_available.lower() == 'yes' else 'pan_not_available'
+        
+        # Check if this section uses slab structure
+        if 'slabs' in rate_config and rate_config[pan_key] == 'slab':
+            # Slab-based calculation
+            slabs = rate_config['slabs'][pan_key]
+            tds_amount = 0
+            applicable_rate = 0
+            threshold_message = ""
+            
+            if payment_amount < threshold:
+                tds_amount = 0
+                applicable_rate = 0
+                threshold_message = f"No TDS required as payment amount (₹{payment_amount:,.2f}) is below threshold (₹{threshold:,.2f})"
+            else:
+                # Calculate TDS using slab structure
+                for slab in slabs:
+                    if payment_amount >= slab['min'] and payment_amount <= slab['max']:
+                        applicable_rate = slab['rate']
+                        tds_amount = (payment_amount * applicable_rate) / 100
+                        
+                        if applicable_rate == 0:
+                            threshold_message = f"No TDS required as payment amount (₹{payment_amount:,.2f}) is below threshold (₹{threshold:,.2f})"
+                        else:
+                            # Determine which slab this falls into for messaging
+                            if applicable_rate == 15.0:
+                                threshold_message = f"TDS at {applicable_rate}% as payment amount (₹{payment_amount:,.2f}) exceeds ₹5,00,000 slab (New Regime)"
+                            else:
+                                threshold_message = f"TDS at {applicable_rate}% as payment amount (₹{payment_amount:,.2f}) exceeds threshold (₹{threshold:,.2f})"
+                        break
+        else:
+            # Traditional flat rate calculation
+            if pan_available.lower() == 'yes':
+                applicable_rate = rate_config['pan_available']
+            else:
+                applicable_rate = rate_config['pan_not_available']
+            
+            # Check if payment exceeds threshold
+            if payment_amount < threshold:
+                tds_amount = 0
+                applicable_rate = 0
+                threshold_message = f"No TDS required as payment amount (₹{payment_amount:,.2f}) is below threshold (₹{threshold:,.2f})"
+            else:
+                tds_amount = (payment_amount * applicable_rate) / 100
+                threshold_message = f"TDS applicable as payment amount (₹{payment_amount:,.2f}) exceeds threshold (₹{threshold:,.2f})"
+        
+        # Calculate net amount after TDS
+        net_amount = payment_amount - tds_amount
+        
+        return {
+            'payment_amount': payment_amount,
+            'tds_amount': round(tds_amount, 2),
+            'net_amount': round(net_amount, 2),
+            'applicable_rate': applicable_rate,
+            'threshold': threshold,
+            'threshold_message': threshold_message,
+            'payment_type': payment_type,
+            'pan_available': pan_available,
+            'category': category,
+            'regime_type': regime_type,
+            'tds_percentage': applicable_rate
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating TDS: {str(e)}")
+
+@app.route('/calculate-tds', methods=['POST'])
+def calculate_tds_route():
+    try:
+        data = request.get_json()
+        
+        payment_type = data.get('payment_type', '194A')
+        payment_amount = float(data.get('payment_amount', 0))
+        pan_available = data.get('pan_available', 'yes')
+        category = data.get('category', 'individual')
+        regime_type = data.get('regime_type', 'old')
+        
+        # Calculate TDS
+        result = calculate_tds_amount(payment_type, payment_amount, pan_available, category, regime_type)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 400
         
 @app.route('/hra-calculator/')
 def hra_calculator():
