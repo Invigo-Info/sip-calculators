@@ -5833,6 +5833,84 @@ def step_up_sip_calculator():
 def cagr_sip_calculator():
     return render_template('cagr_sip_calculator.html')
 
+@app.route('/reverse-cagr-calculator/')
+def reverse_cagr_calculator():
+    return render_template('reverse_cagr_calculator.html')
+
+def calculate_reverse_cagr_investment(target_amount, expected_cagr, investment_years):
+    """
+    Calculate required initial investment for reverse CAGR
+    Formula: Initial Investment = Target Amount / (1 + CAGR)^years
+    """
+    try:
+        # Convert CAGR percentage to decimal
+        growth_rate = expected_cagr / 100
+        
+        # Calculate required initial investment
+        initial_investment = target_amount / ((1 + growth_rate) ** investment_years)
+        
+        # Calculate total growth
+        total_growth = target_amount - initial_investment
+        
+        # Generate year-wise growth table
+        growth_table = []
+        current_value = initial_investment
+        
+        for year in range(1, investment_years + 1):
+            previous_value = current_value
+            current_value = previous_value * (1 + growth_rate)
+            growth_amount = current_value - previous_value
+            
+            growth_table.append({
+                'year': year,
+                'opening_balance': round(previous_value, 2),
+                'growth_amount': round(growth_amount, 2),
+                'closing_balance': round(current_value, 2),
+                'cumulative_growth': round(current_value - initial_investment, 2)
+            })
+        
+        return {
+            'initial_investment': round(initial_investment, 2),
+            'target_amount': round(target_amount, 2),
+            'total_growth': round(total_growth, 2),
+            'expected_cagr': expected_cagr,
+            'investment_years': investment_years,
+            'growth_table': growth_table
+        }
+        
+    except Exception as e:
+        raise ValueError(f"Calculation error: {str(e)}")
+
+@app.route('/calculate-reverse-cagr', methods=['POST'])
+def calculate_reverse_cagr_route():
+    try:
+        data = request.get_json()
+        
+        target_amount = float(data.get('targetAmount', 0))
+        expected_cagr = float(data.get('expectedCagr', 12.0))
+        investment_years = int(data.get('investmentYears', 10))
+        
+        # Validate inputs
+        if target_amount <= 0:
+            return jsonify({'status': 'error', 'error': 'Target amount must be greater than 0'}), 400
+        
+        if expected_cagr <= 0:
+            return jsonify({'status': 'error', 'error': 'Expected CAGR must be greater than 0'}), 400
+            
+        if investment_years <= 0 or investment_years > 50:
+            return jsonify({'status': 'error', 'error': 'Investment duration must be between 1 and 50 years'}), 400
+        
+        # Calculate reverse CAGR
+        result = calculate_reverse_cagr_investment(target_amount, expected_cagr, investment_years)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
 @app.route('/roi-calculator/')
 def roi_calculator():
     return render_template('roi_calculator.html')
@@ -6775,6 +6853,10 @@ def calculate_elss_sip():
 @app.route('/epf-calculator/')
 def epf_calculator():
     return render_template('epf_calculator.html')
+
+@app.route('/etf-return-calculator/')
+def etf_return_calculator():
+    return render_template('etf_return_calculator.html')
 
 @app.route('/exit-load-calculator/')
 def exit_load_calculator():
@@ -7989,6 +8071,34 @@ def inflation_calculator():
 def ppf_calculator():
     return render_template('ppf_calculator.html')
 
+@app.route('/ltcg-calculator/')
+def ltcg_calculator():
+    return render_template('ltcg_calculator.html')
+
+@app.route('/ulip-return-calculator/')
+def ulip_return_calculator():
+    return render_template('ulip_return_calculator.html')
+
+@app.route('/vacation-saving-planner-calculator/')
+def vacation_saving_planner_calculator():
+    return render_template('vacation_saving_planner_calculator.html')
+
+@app.route('/child-education-calculator/')
+def child_education_calculator():
+    return render_template('child_education_calculator.html')
+
+@app.route('/retirement-calculator/')
+def retirement_calculator():
+    return render_template('retirement_calculator.html')
+
+@app.route('/net-worth-calculator/')
+def net_worth_calculator():
+    return render_template('net_worth_calculator.html')
+
+@app.route('/rule-of-72-calculator/')
+def rule_of_72_calculator():
+    return render_template('rule_of_72_calculator.html')
+
 def calculate_ppf_returns(annual_contribution, duration_years, interest_rate, contribution_frequency):
     """
     Calculate PPF returns with compound interest
@@ -8054,6 +8164,64 @@ def calculate_ppf_returns(annual_contribution, duration_years, interest_rate, co
     except Exception as e:
         raise Exception(f"Error calculating PPF returns: {str(e)}")
 
+@app.route('/calculate-child-education/', methods=['POST'])
+def calculate_child_education():
+    try:
+        data = request.get_json()
+        
+        current_age = int(data.get('current_age', 5))
+        college_age = int(data.get('college_age', 18))
+        current_cost = float(data.get('current_cost', 500000))
+        inflation_rate = float(data.get('inflation_rate', 6.0))
+        return_rate = float(data.get('return_rate', 12.0))
+        current_savings = float(data.get('current_savings', 0))
+        
+        # Calculate years until college
+        years_to_college = college_age - current_age
+        
+        if years_to_college <= 0:
+            return jsonify({
+                'error': 'College start age must be greater than current age'
+            }), 400
+        
+        # Calculate future cost with inflation
+        future_cost = current_cost * ((1 + inflation_rate / 100) ** years_to_college)
+        
+        # Calculate net amount needed after current savings
+        net_amount_needed = max(0, future_cost - current_savings)
+        
+        # Calculate monthly SIP required
+        monthly_rate = return_rate / 12 / 100
+        num_months = years_to_college * 12
+        
+        if monthly_rate > 0:
+            # PMT formula for monthly SIP
+            monthly_sip = net_amount_needed * monthly_rate / ((1 + monthly_rate) ** num_months - 1)
+        else:
+            monthly_sip = net_amount_needed / num_months
+        
+        # Calculate total investment required
+        total_investment = monthly_sip * num_months + current_savings
+        
+        result = {
+            'current_age': current_age,
+            'college_age': college_age,
+            'years_to_college': years_to_college,
+            'current_cost': current_cost,
+            'future_cost': round(future_cost),
+            'current_savings': current_savings,
+            'net_amount_needed': round(net_amount_needed),
+            'monthly_sip_required': round(monthly_sip),
+            'total_investment': round(total_investment),
+            'inflation_rate': inflation_rate,
+            'return_rate': return_rate
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/calculate-ppf', methods=['POST'])
 def calculate_ppf_route():
     try:
@@ -8066,6 +8234,404 @@ def calculate_ppf_route():
         
         # Calculate PPF returns
         result = calculate_ppf_returns(annual_contribution, duration_years, interest_rate, contribution_frequency)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+def calculate_ulip_returns(mode, tenure_years, expected_return, existing_investment, monthly_investment=0, periodic_topup=0, lump_sum=0):
+    """
+    Calculate ULIP returns with compound interest
+    Supports both regular and one-time investment modes
+    """
+    try:
+        # Validate inputs
+        if tenure_years <= 0 or expected_return < 0:
+            raise ValueError("Invalid input values")
+        
+        if tenure_years < 1 or tenure_years > 30:
+            raise ValueError("Investment tenure must be between 1 and 30 years")
+        
+        if expected_return < 1 or expected_return > 20:
+            raise ValueError("Expected return must be between 1% and 20%")
+        
+        # Convert annual% to monthly: r = (expectedReturn / 12) / 100
+        monthly_rate = (expected_return / 12) / 100
+        months = tenure_years * 12
+        
+        # Calculate contributions future value
+        if mode == "Regular Investment":
+            if monthly_investment <= 0:
+                raise ValueError("Monthly investment must be greater than 0 for regular investment mode")
+            
+            base_monthly = monthly_investment + periodic_topup
+            
+            # FV_contrib = baseMonthly * (((1 + r)^n - 1) / r) * (1 + r)   // annuity-due
+            if monthly_rate > 0:
+                fv_contrib = base_monthly * (((1 + monthly_rate) ** months - 1) / monthly_rate) * (1 + monthly_rate)
+            else:
+                fv_contrib = base_monthly * months
+            
+            total_invested = (monthly_investment + periodic_topup) * months + existing_investment
+            
+        else:  # One-time Investment
+            if lump_sum <= 0:
+                raise ValueError("Lump sum must be greater than 0 for one-time investment mode")
+            
+            # FV_contrib = lumpSum * (1 + r)^n
+            fv_contrib = lump_sum * ((1 + monthly_rate) ** months)
+            total_invested = lump_sum + existing_investment
+        
+        # Existing corpus growth: FV_existing = existingInvestment * (1 + r)^n
+        fv_existing = existing_investment * ((1 + monthly_rate) ** months)
+        
+        # Projected Maturity Value: FV_total = FV_contrib + FV_existing
+        projected_maturity_value = fv_contrib + fv_existing
+        
+        # Estimated Absolute Return (%)
+        absolute_return_pct = 0
+        if total_invested > 0:
+            absolute_return_pct = ((projected_maturity_value - total_invested) / total_invested) * 100
+        
+        # Create summary message
+        if mode == "Regular Investment":
+            investment_amount = monthly_investment + periodic_topup
+            frequency_text = "monthly"
+        else:
+            investment_amount = lump_sum
+            frequency_text = "one-time"
+        
+        summary_message = f"If you invest ₹{investment_amount:,.0f} {frequency_text} for {tenure_years} years at {expected_return}% p.a., you may get ₹{projected_maturity_value:,.0f}."
+        
+        return {
+            'projected_maturity_value': round(projected_maturity_value),
+            'total_invested': round(total_invested),
+            'absolute_return_pct': round(absolute_return_pct, 2),
+            'summary_message': summary_message,
+            'mode': mode,
+            'tenure_years': tenure_years,
+            'expected_return': expected_return,
+            'existing_investment': existing_investment,
+            'fv_contrib': round(fv_contrib),
+            'fv_existing': round(fv_existing)
+        }
+        
+    except Exception as e:
+        raise e
+
+@app.route('/calculate-ulip', methods=['POST'])
+def calculate_ulip_route():
+    try:
+        data = request.get_json()
+        
+        mode = data.get('mode', 'Regular Investment')
+        tenure_years = int(data.get('tenure_years', 15))
+        expected_return = float(data.get('expected_return', 10))
+        existing_investment = float(data.get('existing_investment', 0))
+        monthly_investment = float(data.get('monthly_investment', 0))
+        periodic_topup = float(data.get('periodic_topup', 0))
+        lump_sum = float(data.get('lump_sum', 0))
+        
+        # Calculate ULIP returns
+        result = calculate_ulip_returns(
+            mode, tenure_years, expected_return, existing_investment,
+            monthly_investment, periodic_topup, lump_sum
+        )
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+def calculate_retirement_corpus_planning(current_age, retirement_age, life_expectancy, monthly_income_desired, inflation_rate, pre_retirement_return, post_retirement_return, current_savings):
+    """
+    Calculate retirement planning with corpus requirement and monthly savings needed
+    """
+    try:
+        # Validate inputs
+        if current_age <= 0 or retirement_age <= current_age or life_expectancy <= retirement_age:
+            raise ValueError("Invalid age inputs")
+        if monthly_income_desired <= 0 or inflation_rate < 0 or pre_retirement_return <= 0 or post_retirement_return <= 0:
+            raise ValueError("Invalid financial inputs")
+        if current_savings < 0:
+            raise ValueError("Current savings cannot be negative")
+        
+        # Calculate key variables
+        years_to_retirement = retirement_age - current_age
+        years_in_retirement = life_expectancy - retirement_age
+        
+        # Convert percentages to decimals
+        inflation_decimal = inflation_rate / 100
+        pre_retirement_decimal = pre_retirement_return / 100
+        post_retirement_decimal = post_retirement_return / 100
+        
+        # Step 1: Calculate inflated monthly income needed at retirement
+        inflated_monthly_income = monthly_income_desired * ((1 + inflation_decimal) ** years_to_retirement)
+        annual_retirement_income = inflated_monthly_income * 12
+        
+        # Step 2: Calculate corpus needed at retirement using annuity formula
+        # Present value of annuity formula: PV = PMT * [(1 - (1 + r)^-n) / r]
+        if post_retirement_decimal > 0:
+            corpus_needed = annual_retirement_income * ((1 - (1 + post_retirement_decimal) ** (-years_in_retirement)) / post_retirement_decimal)
+        else:
+            # If post-retirement return is 0, corpus = total income needed
+            corpus_needed = annual_retirement_income * years_in_retirement
+        
+        # Step 3: Calculate how much current savings will grow
+        future_value_current_savings = current_savings * ((1 + pre_retirement_decimal) ** years_to_retirement)
+        
+        # Step 4: Calculate additional corpus needed
+        additional_corpus_needed = max(0, corpus_needed - future_value_current_savings)
+        
+        # Step 5: Calculate monthly savings required using future value of annuity formula
+        # Future value of annuity formula: FV = PMT * [((1 + r)^n - 1) / r]
+        if additional_corpus_needed > 0 and pre_retirement_decimal > 0:
+            monthly_pre_retirement_return = pre_retirement_decimal / 12
+            total_months = years_to_retirement * 12
+            
+            if monthly_pre_retirement_return > 0:
+                monthly_savings_needed = additional_corpus_needed / (((1 + monthly_pre_retirement_return) ** total_months - 1) / monthly_pre_retirement_return)
+            else:
+                monthly_savings_needed = additional_corpus_needed / total_months
+        else:
+            monthly_savings_needed = 0
+        
+        # Calculate summary metrics
+        total_investment_needed = monthly_savings_needed * years_to_retirement * 12
+        
+        return {
+            'required_retirement_corpus': round(corpus_needed),
+            'monthly_savings_required': round(monthly_savings_needed),
+            'annual_retirement_income_needed': round(annual_retirement_income),
+            'inflated_monthly_income': round(inflated_monthly_income),
+            'years_to_retirement': years_to_retirement,
+            'years_in_retirement': years_in_retirement,
+            'future_value_current_savings': round(future_value_current_savings),
+            'additional_corpus_needed': round(additional_corpus_needed),
+            'total_investment_needed': round(total_investment_needed),
+            'current_age': current_age,
+            'retirement_age': retirement_age,
+            'life_expectancy': life_expectancy,
+            'monthly_income_desired': monthly_income_desired,
+            'inflation_rate': inflation_rate,
+            'pre_retirement_return': pre_retirement_return,
+            'post_retirement_return': post_retirement_return,
+            'current_savings': current_savings
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating retirement planning: {str(e)}")
+
+@app.route('/calculate-retirement', methods=['POST'])
+def calculate_retirement_route():
+    try:
+        data = request.get_json()
+        
+        current_age = int(data.get('current_age', 0))
+        retirement_age = int(data.get('retirement_age', 0))
+        life_expectancy = int(data.get('life_expectancy', 0))
+        monthly_income_desired = float(data.get('monthly_income_desired', 0))
+        inflation_rate = float(data.get('inflation_rate', 6))
+        pre_retirement_return = float(data.get('pre_retirement_return', 8))
+        post_retirement_return = float(data.get('post_retirement_return', 6))
+        current_savings = float(data.get('current_savings', 0))
+        
+        # Calculate retirement planning
+        result = calculate_retirement_corpus_planning(
+            current_age, retirement_age, life_expectancy, monthly_income_desired,
+            inflation_rate, pre_retirement_return, post_retirement_return, current_savings
+        )
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+def calculate_rule_of_72_results(interest_rate=None, years_to_double=None):
+    """
+    Calculate Rule of 72 estimates and exact calculations
+    Rule of 72 formula: Years to double = 72 / interest_rate
+    Exact formula: Years to double = ln(2) / ln(1 + rate/100)
+    """
+    try:
+        import math
+        
+        results = {}
+        
+        if interest_rate is not None:
+            # Calculate years to double from interest rate
+            rule_of_72_years = 72 / interest_rate if interest_rate > 0 else 0
+            exact_years = math.log(2) / math.log(1 + interest_rate/100) if interest_rate > 0 else 0
+            
+            results['years_to_double_rule_72'] = round(rule_of_72_years, 2)
+            results['years_to_double_exact'] = round(exact_years, 2)
+            results['interest_rate'] = interest_rate
+            results['summary_message'] = f"At {interest_rate}% annual interest, your money will double in {round(rule_of_72_years, 1)} years (Rule of 72 estimate)."
+            
+        if years_to_double is not None:
+            # Calculate required interest rate from years to double
+            required_rate_rule_72 = 72 / years_to_double if years_to_double > 0 else 0
+            # Exact: rate = (2^(1/years) - 1) * 100
+            required_rate_exact = (math.pow(2, 1/years_to_double) - 1) * 100 if years_to_double > 0 else 0
+            
+            results['required_rate_rule_72'] = round(required_rate_rule_72, 2)
+            results['required_rate_exact'] = round(required_rate_exact, 2)
+            results['years_to_double'] = years_to_double
+            results['summary_message'] = f"To double your money in {years_to_double} years, you need an annual return of {round(required_rate_rule_72, 1)}% (Rule of 72 estimate)."
+            
+        # Calculate accuracy comparison
+        if interest_rate is not None and interest_rate > 0:
+            rule_72_accuracy = abs(rule_of_72_years - exact_years) / exact_years * 100
+            results['accuracy_percentage'] = round(100 - rule_72_accuracy, 1)
+            
+        return results
+        
+    except Exception as e:
+        raise Exception(f"Error calculating Rule of 72: {str(e)}")
+
+@app.route('/calculate-rule-of-72', methods=['POST'])
+def calculate_rule_of_72_route():
+    try:
+        data = request.get_json()
+        
+        interest_rate = data.get('interest_rate')
+        years_to_double = data.get('years_to_double')
+        
+        # Validate that at least one input is provided
+        if interest_rate is None and years_to_double is None:
+            return jsonify({'status': 'error', 'error': 'Please provide either interest rate or years to double'}), 400
+            
+        # Convert to float if provided
+        if interest_rate is not None:
+            interest_rate = float(interest_rate)
+            if interest_rate <= 0 or interest_rate > 100:
+                return jsonify({'status': 'error', 'error': 'Interest rate must be between 0.1% and 100%'}), 400
+                
+        if years_to_double is not None:
+            years_to_double = float(years_to_double)
+            if years_to_double <= 0 or years_to_double > 200:
+                return jsonify({'status': 'error', 'error': 'Years to double must be between 0.1 and 200 years'}), 400
+        
+        # Calculate Rule of 72 results
+        result = calculate_rule_of_72_results(interest_rate, years_to_double)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+@app.route('/rbi-floating-rate-savings-bonds-calculator/')
+def rbi_floating_rate_savings_bonds_calculator():
+    return render_template('rbi_floating_rate_savings_bonds_calculator.html')
+
+def calculate_rbi_floating_rate_bonds_returns(investment_amount, interest_rate, bond_tenure_years):
+    """
+    Calculate RBI Floating Rate Savings Bonds returns
+    Features:
+    - Fixed 7-year tenure
+    - Half-yearly interest payout
+    - Interest rate: currently 8.05% (floating, reset every 6 months)
+    - Interest paid every 6 months
+    - Principal returned at maturity
+    """
+    try:
+        # Validate inputs
+        if investment_amount < 1000:
+            raise ValueError("Minimum investment amount is ₹1,000")
+        
+        if bond_tenure_years != 7:
+            raise ValueError("RBI Floating Rate Savings Bonds have a fixed tenure of 7 years")
+        
+        if interest_rate <= 0 or interest_rate > 20:
+            raise ValueError("Interest rate must be between 0% and 20%")
+        
+        # Calculate returns
+        annual_interest_rate = interest_rate / 100
+        half_yearly_rate = annual_interest_rate / 2
+        
+        # Calculate interest amounts
+        total_interest_per_year = investment_amount * annual_interest_rate
+        half_yearly_payout = investment_amount * half_yearly_rate
+        total_interest_over_tenure = total_interest_per_year * bond_tenure_years
+        maturity_amount = investment_amount + total_interest_over_tenure
+        
+        # Generate year-wise and half-yearly breakdown
+        yearly_data = []
+        half_yearly_data = []
+        cumulative_interest = 0
+        
+        for year in range(1, bond_tenure_years + 1):
+            year_interest = total_interest_per_year
+            cumulative_interest += year_interest
+            
+            yearly_data.append({
+                'year': year,
+                'interest_earned': round(year_interest, 2),
+                'cumulative_interest': round(cumulative_interest, 2),
+                'principal_outstanding': investment_amount
+            })
+            
+            # Half-yearly breakdown for this year
+            for half_year in range(1, 3):
+                payout_number = (year - 1) * 2 + half_year
+                half_yearly_data.append({
+                    'payout_number': payout_number,
+                    'year': year,
+                    'half_year': half_year,
+                    'payout_amount': round(half_yearly_payout, 2),
+                    'cumulative_interest': round(payout_number * half_yearly_payout, 2)
+                })
+        
+        # Calculate next rate revision date (Jan 1 or Jul 1)
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        
+        if current_month <= 6:
+            next_revision_date = f"Jul 1, {current_year}"
+        else:
+            next_revision_date = f"Jan 1, {current_year + 1}"
+        
+        return {
+            'investment_amount': round(investment_amount, 2),
+            'interest_rate': interest_rate,
+            'bond_tenure_years': bond_tenure_years,
+            'total_interest_per_year': round(total_interest_per_year, 2),
+            'half_yearly_payout': round(half_yearly_payout, 2),
+            'total_interest_over_tenure': round(total_interest_over_tenure, 2),
+            'maturity_amount': round(maturity_amount, 2),
+            'yearly_data': yearly_data,
+            'half_yearly_data': half_yearly_data,
+            'next_revision_date': next_revision_date,
+            'summary_text': f"For an investment of ₹{round(investment_amount):,} at {interest_rate}% interest, you will receive ₹{round(half_yearly_payout):,} every 6 months for 7 years."
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating RBI bond returns: {str(e)}")
+
+@app.route('/calculate-rbi-floating-rate-bonds', methods=['POST'])
+def calculate_rbi_floating_rate_bonds_route():
+    try:
+        data = request.get_json()
+        
+        investment_amount = float(data.get('investment_amount', 0))
+        interest_rate = float(data.get('interest_rate', 8.05))
+        bond_tenure_years = int(data.get('bond_tenure_years', 7))
+        
+        # Calculate RBI bond returns
+        result = calculate_rbi_floating_rate_bonds_returns(investment_amount, interest_rate, bond_tenure_years)
         
         return jsonify({
             'status': 'success',
@@ -9117,6 +9683,14 @@ def calculate_rd_vs_sip():
 def ppf_vs_sip_calculator():
     return render_template('ppf_vs_sip_calculator.html')
 
+@app.route('/nps-vs-sip-calculator/')
+def nps_vs_sip_calculator():
+    return render_template('nps_vs_sip_calculator.html')
+
+@app.route('/ulip-vs-sip-calculator/')
+def ulip_vs_sip_calculator():
+    return render_template('ulip_vs_sip_calculator.html')
+
 @app.route('/calculate-ppf-vs-sip-comparison', methods=['POST'])
 def calculate_ppf_vs_sip_comparison():
     try:
@@ -9572,6 +10146,159 @@ def calculate_fd_vs_sip():
             'status': 'error',
             'error': str(e)
         })
+
+@app.route('/rd-vs-fd-vs-sip-calculator/')
+def rd_vs_fd_vs_sip_calculator():
+    return render_template('rd_vs_fd_vs_sip_calculator.html')
+
+@app.route('/calculate-rd-vs-fd-vs-sip', methods=['POST'])
+def calculate_rd_vs_fd_vs_sip():
+    try:
+        data = request.get_json()
+        
+        # Common inputs
+        tenure_years = int(data.get('tenureYears', 5))
+        
+        # RD inputs
+        rd_monthly_deposit = float(data.get('rdMonthlyDeposit', 5000))
+        rd_annual_rate = float(data.get('rdAnnualRate', 6.8))
+        
+        # FD inputs
+        fd_type = data.get('fdType', 'lumpsum')
+        fd_lump_sum = float(data.get('fdLumpSum', 300000))
+        fd_annual_rate = float(data.get('fdAnnualRate', 7.0))
+        fd_compounding = data.get('fdCompounding', 'quarterly')
+        
+        # SIP inputs
+        sip_monthly_investment = float(data.get('sipMonthlyInvestment', 5000))
+        sip_expected_return = float(data.get('sipExpectedReturn', 12.0))
+        
+        # Advanced options
+        show_cagr = data.get('showCagr', False)
+        add_tax = data.get('addTax', False)
+        
+        # Validate inputs
+        if (tenure_years <= 0 or rd_monthly_deposit <= 0 or rd_annual_rate < 0 or
+            fd_lump_sum <= 0 or fd_annual_rate < 0 or sip_monthly_investment <= 0 or
+            sip_expected_return < 0):
+            return jsonify({
+                'status': 'error',
+                'error': 'Invalid input values. Please check all fields.'
+            })
+        
+        # Calculate RD returns (quarterly compounding)
+        rd_results = calculate_rd_vs_fd_vs_sip_rd(rd_monthly_deposit, rd_annual_rate, tenure_years)
+        
+        # Determine FD investment amount
+        if fd_type == 'match':
+            # Match with RD total investment
+            fd_investment = rd_monthly_deposit * 12 * tenure_years
+        else:
+            fd_investment = fd_lump_sum
+        
+        # Calculate FD returns
+        fd_results = calculate_rd_vs_fd_vs_sip_fd(fd_investment, fd_annual_rate, tenure_years, fd_compounding)
+        
+        # Calculate SIP returns
+        sip_results = calculate_rd_vs_fd_vs_sip_sip(sip_monthly_investment, sip_expected_return, tenure_years)
+        
+        # Add effective CAGR if requested
+        if show_cagr:
+            rd_results['effective_cagr'] = calculate_effective_cagr(rd_results['total_invested'], rd_results['maturity_value'], tenure_years)
+            fd_results['effective_cagr'] = calculate_effective_cagr(fd_results['total_invested'], fd_results['maturity_value'], tenure_years)
+            sip_results['effective_cagr'] = calculate_effective_cagr(sip_results['total_invested'], sip_results['maturity_value'], tenure_years)
+        
+        # Determine ranking
+        results = [
+            {'type': 'RD', 'value': rd_results['maturity_value']},
+            {'type': 'FD', 'value': fd_results['maturity_value']},
+            {'type': 'SIP', 'value': sip_results['maturity_value']}
+        ]
+        results.sort(key=lambda x: x['value'], reverse=True)
+        ranking = [result['type'] for result in results]
+        
+        return jsonify({
+            'status': 'success',
+            'rd_results': rd_results,
+            'fd_results': fd_results,
+            'sip_results': sip_results,
+            'ranking': ranking,
+            'tenure_years': tenure_years
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        })
+
+def calculate_rd_vs_fd_vs_sip_rd(monthly_deposit, annual_rate, years):
+    """Calculate RD returns with quarterly compounding"""
+    quarterly_rate = annual_rate / 400  # Convert to quarterly rate
+    total_quarters = years * 4
+    
+    # RD formula: M = R * ((1+i)^n - 1) / (1 - (1+i)^(-1/3))
+    if quarterly_rate == 0:
+        maturity_value = monthly_deposit * 12 * years
+    else:
+        numerator = (1 + quarterly_rate) ** total_quarters - 1
+        denominator = 1 - (1 + quarterly_rate) ** (-1/3)
+        maturity_value = monthly_deposit * (numerator / denominator)
+    
+    total_invested = monthly_deposit * 12 * years
+    interest_earned = maturity_value - total_invested
+    
+    return {
+        'total_invested': round(total_invested),
+        'maturity_value': round(maturity_value),
+        'interest_earned': round(interest_earned)
+    }
+
+def calculate_rd_vs_fd_vs_sip_fd(principal, annual_rate, years, compounding):
+    """Calculate FD returns with specified compounding"""
+    compounding_frequency = {
+        'annual': 1,
+        'halfyearly': 2,
+        'quarterly': 4,
+        'monthly': 12
+    }.get(compounding, 4)
+    
+    rate = annual_rate / 100
+    maturity_value = principal * (1 + rate / compounding_frequency) ** (compounding_frequency * years)
+    interest_earned = maturity_value - principal
+    
+    return {
+        'total_invested': round(principal),
+        'maturity_value': round(maturity_value),
+        'interest_earned': round(interest_earned)
+    }
+
+def calculate_rd_vs_fd_vs_sip_sip(monthly_investment, expected_return, years):
+    """Calculate SIP returns using annuity-due formula"""
+    monthly_rate = expected_return / 12 / 100
+    total_months = years * 12
+    
+    if monthly_rate == 0:
+        maturity_value = monthly_investment * total_months
+    else:
+        # Annuity-due formula
+        numerator = (1 + monthly_rate) ** total_months - 1
+        maturity_value = monthly_investment * (numerator / monthly_rate) * (1 + monthly_rate)
+    
+    total_invested = monthly_investment * total_months
+    gains_earned = maturity_value - total_invested
+    
+    return {
+        'total_invested': round(total_invested),
+        'maturity_value': round(maturity_value),
+        'gains_earned': round(gains_earned)
+    }
+
+def calculate_effective_cagr(initial_amount, final_amount, years):
+    """Calculate effective CAGR"""
+    if initial_amount <= 0 or years <= 0:
+        return 0
+    return ((final_amount / initial_amount) ** (1 / years) - 1) * 100
 
 
 
@@ -10448,7 +11175,6 @@ def calculate_income_tax_old_new_regime_api():
             'error': str(e)
         }), 400
 
-
 @app.route('/tds-calculator/')
 def tds_calculator():
     return render_template('tds_calculator.html')
@@ -10723,8 +11449,6 @@ def calculate_tds_route():
             'error': str(e)
         }), 400
 
-
-        
 @app.route('/hra-calculator/')
 def hra_calculator():
     return render_template('hra_calculator.html')
@@ -10817,6 +11541,1421 @@ def calculate_hra_route():
         
     except Exception as e:
         return jsonify({'status': 'error', 'error': str(e)}), 400
+
+@app.route('/ctc-calculator/')
+def ctc_calculator():
+    return render_template('ctc_calculator.html')
+
+@app.route('/calculate-ctc', methods=['POST'])
+def calculate_ctc_route():
+    try:
+        data = request.get_json()
+        
+        annual_ctc = float(data.get('annual_ctc', 0))
+        basic_salary_percent = float(data.get('basic_salary_percent', 40))
+        hra_percent = float(data.get('hra_percent', 40))
+        special_allowance = float(data.get('special_allowance', 0))
+        bonus_amount = float(data.get('bonus_amount', 0))
+        employer_pf_percent = float(data.get('employer_pf_percent', 12))
+        employee_pf_percent = float(data.get('employee_pf_percent', 12))
+        gratuity_percent = float(data.get('gratuity_percent', 4.81))
+        professional_tax = float(data.get('professional_tax', 2400))
+        
+        # Tax regime and deductions
+        tax_regime = data.get('tax_regime', 'new')
+        metro_city = data.get('metro_city', True)
+        monthly_rent = float(data.get('monthly_rent', 0))
+        section_80c = float(data.get('section_80c', 0))
+        section_80ccd1b = float(data.get('section_80ccd1b', 0))
+        section_80d = float(data.get('section_80d', 0))
+        senior_citizens = data.get('senior_citizens', False)
+        include_parents = data.get('include_parents', False)
+        section_80tta = float(data.get('section_80tta', 0))
+        home_loan_interest = float(data.get('home_loan_interest', 0))
+        property_rented_out = data.get('property_rented_out', False)
+        epf_applicable = data.get('epf_applicable', True)
+        professional_tax_applicable = data.get('professional_tax_applicable', True)
+        
+        # Calculate CTC breakdown
+        result = calculate_ctc_breakdown(annual_ctc, basic_salary_percent, hra_percent, 
+                                       special_allowance, bonus_amount, employer_pf_percent, 
+                                       employee_pf_percent, gratuity_percent, professional_tax,
+                                       tax_regime, metro_city, monthly_rent, section_80c,
+                                       section_80ccd1b, section_80d, senior_citizens, include_parents,
+                                       section_80tta, home_loan_interest, property_rented_out,
+                                       epf_applicable, professional_tax_applicable)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+def calculate_ctc_breakdown(annual_ctc, basic_salary_percent, hra_percent, special_allowance, 
+                          bonus_amount, employer_pf_percent, employee_pf_percent, 
+                          gratuity_percent, professional_tax, tax_regime='new', metro_city=True,
+                          monthly_rent=0, section_80c=0, section_80ccd1b=0, section_80d=0,
+                          senior_citizens=False, include_parents=False, section_80tta=0,
+                          home_loan_interest=0, property_rented_out=False, epf_applicable=True,
+                          professional_tax_applicable=True):
+    """
+    Calculate detailed CTC breakdown and take-home salary with tax regime support
+    """
+    
+    # Calculate basic salary
+    basic_salary_annual = (annual_ctc * basic_salary_percent) / 100
+    basic_salary_monthly = basic_salary_annual / 12
+    
+    # Calculate HRA
+    hra_annual = (basic_salary_annual * hra_percent) / 100
+    hra_monthly = hra_annual / 12
+    
+    # Calculate employer contributions
+    employer_pf_annual = (basic_salary_annual * employer_pf_percent) / 100
+    employer_pf_monthly = employer_pf_annual / 12
+    
+    gratuity_annual = (basic_salary_annual * gratuity_percent) / 100
+    gratuity_monthly = gratuity_annual / 12
+    
+    # Calculate gross salary (CTC - employer contributions)
+    gross_salary_annual = annual_ctc - employer_pf_annual - gratuity_annual
+    gross_salary_monthly = gross_salary_annual / 12
+    
+    # Calculate employee deductions
+    employee_pf_annual = (basic_salary_annual * employee_pf_percent) / 100
+    employee_pf_monthly = employee_pf_annual / 12
+    
+    professional_tax_monthly = professional_tax / 12 if professional_tax_applicable else 0
+    
+    # Calculate HRA exemption for old regime
+    hra_exemption = 0
+    if tax_regime == 'old' and monthly_rent > 0:
+        # HRA exemption calculation
+        annual_rent = monthly_rent * 12
+        hra_percent_limit = 0.5 if metro_city else 0.4
+        hra_limit_basic = basic_salary_annual * hra_percent_limit
+        rent_minus_10_percent_basic = annual_rent - (basic_salary_annual * 0.1)
+        
+        hra_exemption = min(hra_annual, hra_limit_basic, max(0, rent_minus_10_percent_basic))
+    
+    # Calculate income tax based on regime
+    if tax_regime == 'old':
+        # Old tax regime with deductions
+        total_deductions = 0
+        
+        # Standard deduction
+        standard_deduction = min(50000, gross_salary_annual)
+        total_deductions += standard_deduction
+        
+        # EPF deduction
+        if epf_applicable:
+            total_deductions += employee_pf_annual
+        
+        # HRA exemption
+        total_deductions += hra_exemption
+        
+        # Section 80C (max 150000)
+        total_deductions += min(section_80c, 150000)
+        
+        # Section 80CCD(1B) - NPS (max 50000)
+        total_deductions += min(section_80ccd1b, 50000)
+        
+        # Section 80D - Health Insurance
+        health_insurance_limit = 25000
+        if senior_citizens:
+            health_insurance_limit = 50000
+        if include_parents:
+            health_insurance_limit += 25000 if not senior_citizens else 50000
+        total_deductions += min(section_80d, health_insurance_limit)
+        
+        # Section 80TTA - Savings Interest (max 10000)
+        total_deductions += min(section_80tta, 10000)
+        
+        # Home loan interest deduction
+        home_loan_limit = 200000 if not property_rented_out else 300000
+        total_deductions += min(home_loan_interest, home_loan_limit)
+        
+        taxable_income = max(0, gross_salary_annual - total_deductions)
+        
+        # Old regime tax slabs
+        income_tax_annual = 0
+        if taxable_income > 250000:
+            if taxable_income <= 500000:
+                income_tax_annual = (taxable_income - 250000) * 0.05
+            elif taxable_income <= 1000000:
+                income_tax_annual = 250000 * 0.05 + (taxable_income - 500000) * 0.20
+            else:
+                income_tax_annual = 250000 * 0.05 + 500000 * 0.20 + (taxable_income - 1000000) * 0.30
+    else:
+        # New tax regime (no deductions except standard deduction and EPF)
+        total_deductions = 0
+        
+        # Standard deduction
+        standard_deduction = min(50000, gross_salary_annual)
+        total_deductions += standard_deduction
+        
+        # EPF deduction (always allowed)
+        if epf_applicable:
+            total_deductions += employee_pf_annual
+        
+        taxable_income = max(0, gross_salary_annual - total_deductions)
+        
+        # New regime tax slabs (2024-25)
+        income_tax_annual = 0
+        if taxable_income > 300000:
+            if taxable_income <= 600000:
+                income_tax_annual = (taxable_income - 300000) * 0.05
+            elif taxable_income <= 900000:
+                income_tax_annual = 300000 * 0.05 + (taxable_income - 600000) * 0.10
+            elif taxable_income <= 1200000:
+                income_tax_annual = 300000 * 0.05 + 300000 * 0.10 + (taxable_income - 900000) * 0.15
+            elif taxable_income <= 1500000:
+                income_tax_annual = 300000 * 0.05 + 300000 * 0.10 + 300000 * 0.15 + (taxable_income - 1200000) * 0.20
+            else:
+                income_tax_annual = 300000 * 0.05 + 300000 * 0.10 + 300000 * 0.15 + 300000 * 0.20 + (taxable_income - 1500000) * 0.30
+    
+    income_tax_monthly = income_tax_annual / 12
+    
+    # Calculate take-home salary
+    total_deductions_monthly = employee_pf_monthly + professional_tax_monthly + income_tax_monthly
+    total_deductions_annual = total_deductions_monthly * 12
+    
+    takehome_monthly = gross_salary_monthly - total_deductions_monthly
+    takehome_annual = takehome_monthly * 12
+    
+    takehome_percentage = (takehome_annual / annual_ctc) * 100
+    
+    total_contributions_monthly = employer_pf_monthly + gratuity_monthly
+    total_contributions_annual = total_contributions_monthly * 12
+    
+    bonus_monthly = bonus_amount / 12
+    special_allowance_monthly = special_allowance / 12
+    
+    return {
+        'annual_ctc': round(annual_ctc, 2),
+        'monthly_gross': round(gross_salary_monthly, 2),
+        'monthly_takehome': round(takehome_monthly, 2),
+        'takehome_percentage': round(takehome_percentage, 2),
+        'basic_salary_monthly': round(basic_salary_monthly, 2),
+        'hra_monthly': round(hra_monthly, 2),
+        'special_allowance_monthly': round(special_allowance_monthly, 2),
+        'bonus_monthly': round(bonus_monthly, 2),
+        'gross_salary_monthly': round(gross_salary_monthly, 2),
+        'employee_pf_monthly': round(employee_pf_monthly, 2),
+        'professional_tax_monthly': round(professional_tax_monthly, 2),
+        'income_tax_monthly': round(income_tax_monthly, 2),
+        'total_deductions_monthly': round(total_deductions_monthly, 2),
+        'employer_pf_monthly': round(employer_pf_monthly, 2),
+        'gratuity_monthly': round(gratuity_monthly, 2),
+        'total_contributions_monthly': round(total_contributions_monthly, 2),
+        'takehome_annual': round(takehome_annual, 2),
+        'total_deductions_annual': round(total_deductions_annual, 2),
+        'total_contributions_annual': round(total_contributions_annual, 2),
+        'basic_salary_annual': round(basic_salary_annual, 2),
+        'hra_annual': round(hra_annual, 2),
+        'employee_pf_annual': round(employee_pf_annual, 2),
+        'employer_pf_annual': round(employer_pf_annual, 2),
+        'gratuity_annual': round(gratuity_annual, 2),
+        'income_tax_annual': round(income_tax_annual, 2),
+        'tax_regime': tax_regime,
+        'hra_exemption': round(hra_exemption, 2),
+        'taxable_income': round(taxable_income, 2)
+    }
+
+# Daily Compound Interest Calculator
+@app.route('/daily-compound-interest-calculator/')
+def daily_compound_interest_calculator():
+    return render_template('daily_compound_interest_calculator.html')
+
+@app.route('/calculate-daily-compound-interest', methods=['POST'])
+def calculate_daily_compound_interest_route():
+    try:
+        data = request.get_json()
+        
+        principal = float(data.get('principal', 0))
+        annual_rate = float(data.get('annual_rate', 10))
+        time_years = float(data.get('time_years', 1))
+        time_period_value = data.get('time_period_value', 1)
+        time_period_unit = data.get('time_period_unit', 'days')
+        compounding_frequency = data.get('compounding_frequency', 'monthly')
+        
+        # Validate inputs
+        if principal <= 0:
+            return jsonify({'error': 'Principal amount must be greater than 0'}), 400
+        if annual_rate <= 0:
+            return jsonify({'error': 'Interest rate must be greater than 0'}), 400
+        if time_years <= 0:
+            return jsonify({'error': 'Time period must be greater than 0'}), 400
+        if principal > 10000000:  # 1 crore limit
+            return jsonify({'error': 'Principal amount cannot exceed ₹1,00,00,000'}), 400
+        if annual_rate > 50:
+            return jsonify({'error': 'Interest rate cannot exceed 50%'}), 400
+        if time_years > 50:
+            return jsonify({'error': 'Time period cannot exceed 50 years'}), 400
+        
+        # Calculate compound interest
+        result = calculate_daily_compound_interest_logic(principal, annual_rate, time_years, compounding_frequency, time_period_value, time_period_unit)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+def calculate_daily_compound_interest_logic(principal, annual_rate, time_years, compounding_frequency, time_period_value=1, time_period_unit='days'):
+    """
+    Calculate compound interest using the formula: A = P(1 + r/n)^(nt)
+    Where:
+    - P = Principal amount
+    - r = Annual interest rate (as decimal)
+    - n = Number of times interest is compounded per year
+    - t = Time in years
+    """
+    
+    # Convert percentage to decimal
+    rate_decimal = annual_rate / 100
+    
+    # Define compounding frequencies
+    frequency_map = {
+        'daily': 365,
+        'weekly': 52,
+        'monthly': 12,
+        'quarterly': 4,
+        'half-yearly': 2,
+        'annually': 1
+    }
+    
+    n = frequency_map.get(compounding_frequency, 365)
+    
+    # Calculate future value using compound interest formula
+    future_value = principal * ((1 + rate_decimal / n) ** (n * time_years))
+    
+    # Calculate interest earned
+    interest_earned = future_value - principal
+    
+    # Calculate comparison table for all frequencies
+    comparison_data = []
+    for freq_name, freq_value in frequency_map.items():
+        fv = principal * ((1 + rate_decimal / freq_value) ** (freq_value * time_years))
+        interest = fv - principal
+        comparison_data.append({
+            'frequency': freq_name.title().replace('-', ' '),
+            'future_value': round(fv, 2),
+            'interest_earned': round(interest, 2),
+            'difference': round(interest - interest_earned, 2) if freq_name != compounding_frequency else 0
+        })
+    
+    # Sort comparison data by interest earned (descending)
+    comparison_data.sort(key=lambda x: x['interest_earned'], reverse=True)
+    
+    # Calculate monthly breakdown for visualization (if time > 1 year)
+    monthly_breakdown = []
+    if time_years >= 1:
+        for month in range(1, min(int(time_years * 12) + 1, 61)):  # Max 5 years monthly data
+            time_months = month / 12
+            monthly_fv = principal * ((1 + rate_decimal / n) ** (n * time_months))
+            monthly_breakdown.append({
+                'month': month,
+                'time_years': round(time_months, 2),
+                'future_value': round(monthly_fv, 2),
+                'interest_earned': round(monthly_fv - principal, 2)
+            })
+    
+    # Create more descriptive summary text
+    unit_text = time_period_unit[:-1] if time_period_value == 1 else time_period_unit
+    summary_text = f"Investing ₹{principal:,.0f} at {annual_rate}% compounded {compounding_frequency} for {time_period_value} {unit_text} will grow to ₹{future_value:,.2f}."
+    
+    return {
+        'principal': round(principal, 2),
+        'annual_rate': annual_rate,
+        'time_years': time_years,
+        'time_period_value': time_period_value,
+        'time_period_unit': time_period_unit,
+        'compounding_frequency': compounding_frequency,
+        'future_value': round(future_value, 2),
+        'interest_earned': round(interest_earned, 2),
+        'effective_rate': round(((future_value / principal) ** (1 / time_years) - 1) * 100, 2),
+        'comparison_data': comparison_data,
+        'monthly_breakdown': monthly_breakdown,
+        'summary_text': summary_text
+    }
+
+@app.route('/gst-calculator/')
+def gst_calculator():
+    return render_template('gst_calculator.html')
+
+@app.route('/reverse-gst-calculator/')
+def reverse_gst_calculator():
+    return render_template('reverse_gst_calculator.html')
+
+def calculate_gst_amounts(amount, gst_rate, calculation_type):
+    """
+    Calculate GST amounts based on amount, rate and calculation type
+    """
+    try:
+        # Validate inputs
+        if amount < 0:
+            raise ValueError("Amount cannot be negative")
+        
+        if gst_rate < 0 or gst_rate > 100:
+            raise ValueError("GST rate must be between 0 and 100")
+        
+        if calculation_type not in ['add', 'remove']:
+            raise ValueError("Calculation type must be 'add' or 'remove'")
+        
+        # Calculate based on type
+        if calculation_type == 'add':
+            # Add GST: amount is exclusive of GST
+            base_amount = amount
+            gst_amount = amount * (gst_rate / 100)
+            total_amount = amount + gst_amount
+        else:
+            # Remove GST: amount is inclusive of GST
+            total_amount = amount
+            gst_amount = amount * (gst_rate / (100 + gst_rate))
+            base_amount = amount - gst_amount
+        
+        return {
+            'original_amount': round(amount, 2),
+            'base_amount': round(base_amount, 2),
+            'gst_amount': round(gst_amount, 2),
+            'total_amount': round(total_amount, 2),
+            'gst_rate': gst_rate,
+            'calculation_type': calculation_type,
+            'gst_percentage_of_total': round((gst_amount / total_amount) * 100, 2) if total_amount > 0 else 0,
+            'effective_rate': round((gst_amount / base_amount) * 100, 2) if base_amount > 0 else 0
+        }
+        
+    except Exception as e:
+        raise ValueError(f"GST calculation error: {str(e)}")
+
+@app.route('/calculate-gst', methods=['POST'])
+def calculate_gst():
+    try:
+        data = request.get_json()
+        
+        # Extract parameters
+        amount = float(data.get('amount', 0))
+        gst_rate = float(data.get('gst_rate', 0))
+        calculation_type = data.get('calculation_type', 'add')
+        
+        # Validate amount limit
+        if amount > 10000000:  # 1 crore limit
+            return jsonify({'error': 'Amount cannot exceed ₹1,00,00,000'})
+        
+        # Calculate GST
+        result = calculate_gst_amounts(amount, gst_rate, calculation_type)
+        
+        # Add additional information
+        result['calculation_summary'] = generate_gst_summary(result)
+        result['breakdown_steps'] = generate_gst_breakdown_steps(result)
+        
+        return jsonify(result)
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)})
+    except Exception as e:
+        return jsonify({'error': f'Calculation failed: {str(e)}'})
+
+@app.route('/calculate-reverse-gst', methods=['POST'])
+def calculate_reverse_gst():
+    try:
+        data = request.get_json()
+        
+        # Extract parameters
+        inclusive_amount = float(data.get('inclusive_amount', 0))
+        gst_rate = float(data.get('gst_rate', 0))
+        transaction_type = data.get('transaction_type', 'intra-state')
+        
+        # Validate inputs
+        if inclusive_amount <= 0:
+            return jsonify({'error': 'Amount must be greater than 0'})
+        
+        if inclusive_amount > 20000000:  # 2 crore limit
+            return jsonify({'error': 'Amount cannot exceed ₹2,00,00,000'})
+        
+        if gst_rate < 0 or gst_rate > 100:
+            return jsonify({'error': 'GST rate must be between 0 and 100'})
+        
+        if transaction_type not in ['intra-state', 'inter-state']:
+            return jsonify({'error': 'Transaction type must be intra-state or inter-state'})
+        
+        # Calculate reverse GST
+        result = calculate_reverse_gst_amounts(inclusive_amount, gst_rate, transaction_type)
+        
+        # Add additional information
+        result['calculation_summary'] = generate_reverse_gst_summary(result)
+        
+        return jsonify(result)
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)})
+    except Exception as e:
+        return jsonify({'error': f'Calculation failed: {str(e)}'})
+
+def calculate_reverse_gst_amounts(inclusive_amount, gst_rate, transaction_type):
+    """
+    Calculate reverse GST amounts from inclusive amount
+    """
+    try:
+        # Calculate base price and GST amount
+        base_price = inclusive_amount / (1 + (gst_rate / 100))
+        gst_amount = inclusive_amount - base_price
+        
+        # Initialize tax components
+        cgst = 0
+        sgst = 0
+        igst = 0
+        
+        if transaction_type == 'intra-state':
+            # For intra-state: CGST + SGST = GST Amount
+            cgst = gst_amount / 2
+            sgst = gst_amount / 2
+        else:
+            # For inter-state: IGST = GST Amount
+            igst = gst_amount
+        
+        return {
+            'inclusive_amount': round(inclusive_amount, 2),
+            'base_price': round(base_price, 2),
+            'gst_amount': round(gst_amount, 2),
+            'gst_rate': gst_rate,
+            'transaction_type': transaction_type,
+            'cgst': round(cgst, 2),
+            'sgst': round(sgst, 2),
+            'igst': round(igst, 2),
+            'gst_percentage_of_total': round((gst_amount / inclusive_amount) * 100, 2) if inclusive_amount > 0 else 0,
+            'effective_rate': round((gst_amount / base_price) * 100, 2) if base_price > 0 else 0
+        }
+        
+    except Exception as e:
+        raise ValueError(f"Reverse GST calculation error: {str(e)}")
+
+def generate_reverse_gst_summary(result):
+    """Generate a text summary of the reverse GST calculation"""
+    summary = f"₹{result['inclusive_amount']:,.2f} includes ₹{result['gst_amount']:,.2f} in GST at {result['gst_rate']}%.\n"
+    summary += f"• Base Price: ₹{result['base_price']:,.2f}\n"
+    summary += f"• GST Amount: ₹{result['gst_amount']:,.2f}\n"
+    
+    if result['transaction_type'] == 'intra-state':
+        summary += f"• CGST ({result['gst_rate']/2}%): ₹{result['cgst']:,.2f}\n"
+        summary += f"• SGST ({result['gst_rate']/2}%): ₹{result['sgst']:,.2f}"
+    else:
+        summary += f"• IGST ({result['gst_rate']}%): ₹{result['igst']:,.2f}"
+    
+    return summary
+
+def generate_gst_summary(result):
+    """Generate a text summary of the GST calculation"""
+    type_text = "Add GST (Exclusive)" if result['calculation_type'] == 'add' else "Remove GST (Inclusive)"
+    
+    summary = f"For an amount of ₹{result['original_amount']:,.2f} with {result['gst_rate']}% GST ({type_text}):\n"
+    summary += f"• Base Amount: ₹{result['base_amount']:,.2f}\n"
+    summary += f"• GST Amount: ₹{result['gst_amount']:,.2f}\n"
+    summary += f"• Total Amount: ₹{result['total_amount']:,.2f}"
+    
+    return summary
+
+def generate_gst_breakdown_steps(result):
+    """Generate step-by-step calculation breakdown"""
+    steps = []
+    
+    if result['calculation_type'] == 'add':
+        steps.append(f"Step 1: Base Amount = ₹{result['original_amount']:,.2f} (given)")
+        steps.append(f"Step 2: GST Amount = Base Amount × (GST Rate / 100)")
+        steps.append(f"Step 2: GST Amount = ₹{result['base_amount']:,.2f} × ({result['gst_rate']} / 100)")
+        steps.append(f"Step 2: GST Amount = ₹{result['gst_amount']:,.2f}")
+        steps.append(f"Step 3: Total Amount = Base Amount + GST Amount")
+        steps.append(f"Step 3: Total Amount = ₹{result['base_amount']:,.2f} + ₹{result['gst_amount']:,.2f}")
+        steps.append(f"Step 3: Total Amount = ₹{result['total_amount']:,.2f}")
+    else:
+        steps.append(f"Step 1: Total Amount = ₹{result['original_amount']:,.2f} (given)")
+        steps.append(f"Step 2: GST Amount = Total Amount × (GST Rate / (100 + GST Rate))")
+        steps.append(f"Step 2: GST Amount = ₹{result['total_amount']:,.2f} × ({result['gst_rate']} / (100 + {result['gst_rate']}))")
+        steps.append(f"Step 2: GST Amount = ₹{result['gst_amount']:,.2f}")
+        steps.append(f"Step 3: Base Amount = Total Amount - GST Amount")
+        steps.append(f"Step 3: Base Amount = ₹{result['total_amount']:,.2f} - ₹{result['gst_amount']:,.2f}")
+        steps.append(f"Step 3: Base Amount = ₹{result['base_amount']:,.2f}")
+    
+    return steps
+
+@app.route('/sovereign-gold-bonds-calculator/')
+def sovereign_gold_bonds_calculator():
+    return render_template('sovereign_gold_bonds_calculator.html')
+
+@app.route('/calculate-sgb', methods=['POST'])
+def calculate_sgb():
+    try:
+        data = request.get_json()
+        
+        # Input parameters
+        investment_quantity = float(data.get('investment_quantity', 1))  # in grams
+        issue_price_per_gram = float(data.get('issue_price_per_gram', 6000))  # in ₹
+        expected_gold_price_maturity = float(data.get('expected_gold_price_maturity', 7500))  # in ₹
+        interest_rate = float(data.get('interest_rate', 2.5))  # in %
+        tenure_years = int(data.get('tenure_years', 8))  # in years
+        
+        # Validate inputs
+        if investment_quantity <= 0:
+            return jsonify({'error': 'Investment quantity must be greater than 0'}), 400
+        if issue_price_per_gram <= 0:
+            return jsonify({'error': 'Issue price must be greater than 0'}), 400
+        if expected_gold_price_maturity <= 0:
+            return jsonify({'error': 'Expected gold price must be greater than 0'}), 400
+        if interest_rate < 0:
+            return jsonify({'error': 'Interest rate cannot be negative'}), 400
+        if tenure_years <= 0:
+            return jsonify({'error': 'Tenure must be greater than 0'}), 400
+        
+        # Calculate SGB returns
+        result = calculate_sgb_returns(
+            investment_quantity,
+            issue_price_per_gram,
+            expected_gold_price_maturity,
+            interest_rate,
+            tenure_years
+        )
+        
+        return jsonify(result)
+        
+    except ValueError as e:
+        return jsonify({'error': f'Invalid input: {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+def calculate_sgb_returns(investment_quantity, issue_price_per_gram, expected_gold_price_maturity, interest_rate, tenure_years):
+    """
+    Calculate Sovereign Gold Bonds (SGB) returns
+    Features:
+    - Calculate total investment amount
+    - Calculate interest earned over tenure
+    - Calculate capital gain based on gold price appreciation
+    - Calculate total return and annualized return
+    """
+    
+    # Calculate total investment
+    total_investment = investment_quantity * issue_price_per_gram
+    
+    # Calculate annual interest amount (interest is paid on issue price, not current market price)
+    annual_interest = total_investment * (interest_rate / 100)
+    total_interest_earned = annual_interest * tenure_years
+    
+    # Calculate maturity value (based on expected gold price)
+    maturity_value = investment_quantity * expected_gold_price_maturity
+    
+    # Calculate capital gain
+    capital_gain = maturity_value - total_investment
+    
+    # Calculate total return (maturity value + interest earned)
+    total_return = maturity_value + total_interest_earned
+    
+    # Calculate total gain (total return - investment)
+    total_gain = total_return - total_investment
+    
+    # Calculate annualized return
+    if total_investment > 0 and tenure_years > 0:
+        annualized_return = ((total_return / total_investment) ** (1 / tenure_years) - 1) * 100
+    else:
+        annualized_return = 0
+    
+    # Generate year-wise breakdown
+    year_wise_data = []
+    cumulative_interest = 0
+    
+    for year in range(1, tenure_years + 1):
+        cumulative_interest += annual_interest
+        
+        year_wise_data.append({
+            'year': year,
+            'annual_interest': annual_interest,
+            'cumulative_interest': cumulative_interest,
+            'investment_value': total_investment,  # SGB investment remains same
+            'estimated_gold_value': total_investment * (1 + ((expected_gold_price_maturity - issue_price_per_gram) / issue_price_per_gram) * (year / tenure_years)),
+            'total_value_with_interest': total_investment * (1 + ((expected_gold_price_maturity - issue_price_per_gram) / issue_price_per_gram) * (year / tenure_years)) + cumulative_interest
+        })
+    
+    return {
+        'investment_quantity': investment_quantity,
+        'issue_price_per_gram': issue_price_per_gram,
+        'expected_gold_price_maturity': expected_gold_price_maturity,
+        'interest_rate': interest_rate,
+        'tenure_years': tenure_years,
+        'total_investment': round(total_investment, 2),
+        'total_interest_earned': round(total_interest_earned, 2),
+        'maturity_value': round(maturity_value, 2),
+        'capital_gain': round(capital_gain, 2),
+        'total_return': round(total_return, 2),
+        'total_gain': round(total_gain, 2),
+        'annualized_return': round(annualized_return, 2),
+        'annual_interest': round(annual_interest, 2),
+        'year_wise_data': year_wise_data
+    }
+
+@app.route('/post-office-rd-calculator/')
+def post_office_rd_calculator():
+    return render_template('post_office_rd_calculator.html')
+
+@app.route('/calculate-post-office-rd', methods=['POST'])
+def calculate_post_office_rd():
+    try:
+        data = request.get_json()
+        
+        monthly_amount = float(data.get('monthly_amount', 0))
+        tenure_years = int(data.get('tenure_years', 1))
+        interest_rate = float(data.get('interest_rate', 6.7))
+        
+        # Validation
+        if monthly_amount < 100:
+            return jsonify({'error': 'Monthly deposit amount must be at least ₹100'})
+        
+        if tenure_years < 1 or tenure_years > 30:
+            return jsonify({'error': 'Tenure must be between 1 and 30 years'})
+        
+        if interest_rate < 1.0 or interest_rate > 15.0:
+            return jsonify({'error': 'Interest rate must be between 1% and 15%'})
+        
+        # Post Office RD calculation using the formula:
+        # M = R × [(1 + i)^n − 1] / [1 − (1 + i)^(-1/3)]
+        # Where:
+        # R = Monthly deposit
+        # i = Interest rate per quarter = annual rate / 400
+        # n = total quarters = years × 4
+        
+        quarterly_rate = interest_rate / 400  # Interest rate per quarter
+        total_quarters = tenure_years * 4
+        total_months = tenure_years * 12
+        
+        if quarterly_rate == 0:
+            # If no interest
+            maturity_value = monthly_amount * total_months
+        else:
+            # Apply RD formula
+            numerator = ((1 + quarterly_rate) ** total_quarters) - 1
+            denominator = 1 - ((1 + quarterly_rate) ** (-1/3))
+            maturity_value = monthly_amount * (numerator / denominator)
+        
+        total_investment = monthly_amount * total_months
+        total_interest = maturity_value - total_investment
+        
+        # Calculate maturity date
+        from datetime import datetime, timedelta
+        today = datetime.now()
+        maturity_date = datetime(today.year + tenure_years, today.month, today.day)
+        
+        # Generate year-wise data
+        year_wise_data = []
+        cumulative_investment = 0
+        cumulative_value = 0
+        
+        for year in range(1, tenure_years + 1):
+            yearly_deposits = monthly_amount * 12
+            cumulative_investment += yearly_deposits
+            
+            # Calculate value at end of year using compound growth
+            quarters_completed = year * 4
+            
+            if quarterly_rate == 0:
+                year_end_value = cumulative_investment
+            else:
+                numerator_year = ((1 + quarterly_rate) ** quarters_completed) - 1
+                denominator_year = 1 - ((1 + quarterly_rate) ** (-1/3))
+                year_end_value = monthly_amount * (numerator_year / denominator_year)
+            
+            opening_balance = cumulative_value
+            year_interest = year_end_value - opening_balance - yearly_deposits
+            cumulative_value = year_end_value
+            
+            year_wise_data.append({
+                'year': year,
+                'quarterly_deposits': yearly_deposits / 4,
+                'opening_balance': round(opening_balance),
+                'interest_earned': round(max(0, year_interest)),
+                'closing_balance': round(year_end_value),
+                'total_invested': round(cumulative_investment)
+            })
+        
+        return jsonify({
+            'total_investment': round(total_investment),
+            'total_interest': round(total_interest),
+            'maturity_value': round(maturity_value),
+            'maturity_date': maturity_date.strftime('%b %Y'),
+            'monthly_amount': monthly_amount,
+            'tenure_years': tenure_years,
+            'interest_rate': interest_rate,
+            'year_wise_data': year_wise_data
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Calculation error: {str(e)}'})
+
+@app.route('/future-value-calculator/')
+def future_value_calculator():
+    return render_template('future_value_calculator.html')
+
+def calculate_future_value_returns(principal, annual_rate, time_years, compounding_frequency):
+    """
+    Calculate Future Value using compound interest formula
+    FV = P × (1 + r/n) ^ (nt)
+    
+    Where:
+    P = Principal
+    r = Annual rate (as decimal)
+    n = Frequency per year (12 for monthly, etc.)
+    t = Time in years
+    """
+    try:
+        # Validate inputs
+        if principal <= 0:
+            raise ValueError("Principal amount must be greater than 0")
+        if annual_rate < 0:
+            raise ValueError("Interest rate cannot be negative")
+        if time_years <= 0:
+            raise ValueError("Time period must be greater than 0")
+        
+        # Set compounding frequency based on selection
+        frequency_mapping = {
+            'annually': 1,
+            'semi-annually': 2,
+            'quarterly': 4,
+            'monthly': 12,
+            'daily': 365
+        }
+        
+        n = frequency_mapping.get(compounding_frequency, 12)
+        r = annual_rate / 100  # Convert percentage to decimal
+        
+        # Calculate future value using compound interest formula
+        future_value = principal * ((1 + r / n) ** (n * time_years))
+        total_interest = future_value - principal
+        
+        # Generate year-wise breakdown
+        year_wise_data = []
+        for year in range(1, int(time_years) + 1):
+            year_fv = principal * ((1 + r / n) ** (n * year))
+            year_interest = year_fv - principal
+            
+            year_wise_data.append({
+                'year': year,
+                'principal': round(principal, 2),
+                'interest_earned': round(year_interest, 2),
+                'future_value': round(year_fv, 2),
+                'growth_rate': round(((year_fv - principal) / principal) * 100, 2)
+            })
+        
+        return {
+            'principal': round(principal, 2),
+            'future_value': round(future_value, 2),
+            'total_interest': round(total_interest, 2),
+            'annual_rate': annual_rate,
+            'time_years': time_years,
+            'compounding_frequency': compounding_frequency,
+            'compounding_periods_per_year': n,
+            'year_wise_data': year_wise_data,
+            'effective_annual_rate': round(((1 + r / n) ** n - 1) * 100, 2)
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating future value: {str(e)}")
+
+@app.route('/calculate-future-value', methods=['POST'])
+def calculate_future_value_route():
+    try:
+        data = request.get_json()
+        
+        principal = float(data.get('principal', 0))
+        annual_rate = float(data.get('annual_rate', 8))
+        time_years = float(data.get('time_years', 5))
+        compounding_frequency = data.get('compounding_frequency', 'monthly')
+        
+        # Calculate future value returns
+        result = calculate_future_value_returns(principal, annual_rate, time_years, compounding_frequency)
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+
+# Marriage Planning Calculator Routes
+@app.route('/marriage-planning-calculator/')
+def marriage_planning_calculator():
+    return render_template('marriage_planning_calculator.html')
+
+@app.route('/calculate-marriage-planning', methods=['POST'])
+def calculate_marriage_planning_route():
+    try:
+        data = request.get_json()
+        
+        current_marriage_cost = float(data.get('current_marriage_cost', 500000))
+        inflation_rate = float(data.get('inflation_rate', 6))
+        current_age = int(data.get('current_age', 5))
+        marriage_age = int(data.get('marriage_age', 25))
+        expected_return = float(data.get('expected_return', 8))
+        existing_savings = float(data.get('existing_savings', 0))
+        
+        # Validate inputs
+        if marriage_age <= current_age:
+            return jsonify({'error': 'Marriage age must be greater than current age'}), 400
+        
+        if current_age < 0 or current_age > 25:
+            return jsonify({'error': 'Current age must be between 0 and 25 years'}), 400
+            
+        if marriage_age < 18 or marriage_age > 35:
+            return jsonify({'error': 'Marriage age must be between 18 and 35 years'}), 400
+            
+        if inflation_rate < 3 or inflation_rate > 12:
+            return jsonify({'error': 'Inflation rate must be between 3% and 12%'}), 400
+            
+        if expected_return < 4 or expected_return > 20:
+            return jsonify({'error': 'Expected return must be between 4% and 20%'}), 400
+        
+        # Calculate marriage planning
+        result = calculate_marriage_planning_details(
+            current_marriage_cost, inflation_rate, current_age, 
+            marriage_age, expected_return, existing_savings
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def calculate_marriage_planning_details(current_cost, inflation_rate, current_age, marriage_age, expected_return, existing_savings):
+    """
+    Calculate marriage planning details
+    """
+    try:
+        # Calculate years until marriage
+        years_until_marriage = marriage_age - current_age
+        
+        # Calculate future marriage cost with inflation
+        future_cost = current_cost * ((1 + inflation_rate / 100) ** years_until_marriage)
+        
+        # Calculate growth of existing savings
+        future_value_existing_savings = existing_savings * ((1 + expected_return / 100) ** years_until_marriage)
+        
+        # Calculate required corpus (considering existing savings growth)
+        required_corpus = max(0, future_cost - future_value_existing_savings)
+        
+        # Calculate monthly investment required using SIP formula
+        monthly_rate = expected_return / 12 / 100
+        total_months = years_until_marriage * 12
+        
+        monthly_investment = 0
+        if required_corpus > 0 and total_months > 0:
+            if monthly_rate > 0:
+                # PMT formula for SIP
+                monthly_investment = required_corpus * monthly_rate / ((1 + monthly_rate) ** total_months - 1)
+            else:
+                monthly_investment = required_corpus / total_months
+        
+        # Calculate yearly breakdown for table
+        year_wise_data = []
+        total_invested = 0
+        portfolio_value = existing_savings
+        annual_investment = monthly_investment * 12
+        
+        for year in range(1, years_until_marriage + 1):
+            opening_balance = portfolio_value
+            
+            # Calculate returns (simplified model - assumes investment happens at beginning of year)
+            returns_earned = (opening_balance + annual_investment) * (expected_return / 100)
+            closing_balance = opening_balance + annual_investment + returns_earned
+            
+            total_invested += annual_investment
+            portfolio_value = closing_balance
+            
+            year_wise_data.append({
+                'year': year,
+                'annual_investment': round(annual_investment, 2),
+                'opening_balance': round(opening_balance, 2),
+                'returns_earned': round(returns_earned, 2),
+                'closing_balance': round(closing_balance, 2),
+                'total_invested_till_date': round(total_invested, 2)
+            })
+        
+        # Calculate total growth
+        final_value = portfolio_value
+        total_growth = final_value - total_invested - existing_savings
+        
+        return {
+            'future_marriage_cost': round(future_cost, 2),
+            'monthly_investment_required': round(monthly_investment, 2),
+            'total_corpus_required': round(required_corpus, 2),
+            'years_until_marriage': years_until_marriage,
+            'total_investment': round(total_invested, 2),
+            'investment_growth': round(total_growth, 2),
+            'existing_savings': existing_savings,
+            'future_value_existing_savings': round(future_value_existing_savings, 2),
+            'final_portfolio_value': round(final_value, 2),
+            'year_wise_data': year_wise_data
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error in marriage planning calculation: {str(e)}")
+
+def calculate_vacation_savings_planning(vacation_cost, months_until_vacation, current_savings, expected_return, expected_inflation=0):
+    """
+    Calculate vacation savings plan with optional investment returns and inflation adjustment
+    """
+    try:
+        # Calculate inflation-adjusted vacation cost
+        years_until_vacation = months_until_vacation / 12
+        inflation_adjusted_cost = vacation_cost * ((1 + expected_inflation / 100) ** years_until_vacation)
+        
+        remaining_amount = inflation_adjusted_cost - current_savings
+        monthly_rate = expected_return / 12 / 100
+        
+        if remaining_amount <= 0:
+            # Already have enough savings
+            return {
+                'vacation_cost': vacation_cost,
+                'inflation_adjusted_cost': inflation_adjusted_cost,
+                'months_until_vacation': months_until_vacation,
+                'current_savings': current_savings,
+                'expected_return': expected_return,
+                'expected_inflation': expected_inflation,
+                'remaining_amount': 0,
+                'monthly_savings_needed': 0,
+                'estimated_accumulated_value': current_savings,
+                'total_investment_returns': 0,
+                'month_wise_data': []
+            }
+        
+        # Calculate monthly savings needed
+        if expected_return > 0 and months_until_vacation > 1:
+            # With investment returns - use compound interest formula
+            # Future value of current savings
+            future_value_current_savings = current_savings * ((1 + monthly_rate) ** months_until_vacation)
+            
+            # Remaining amount needed after current savings grow
+            remaining_needed = inflation_adjusted_cost - future_value_current_savings
+            
+            if remaining_needed > 0:
+                # Calculate monthly investment needed using PMT formula
+                # PMT = [PV * r] / [(1 + r)^n - 1]
+                monthly_savings_needed = (remaining_needed * monthly_rate) / ((1 + monthly_rate) ** months_until_vacation - 1)
+            else:
+                monthly_savings_needed = 0
+                
+            # Calculate estimated accumulated value
+            if monthly_savings_needed > 0:
+                future_value_monthly_savings = monthly_savings_needed * (((1 + monthly_rate) ** months_until_vacation - 1) / monthly_rate)
+                estimated_accumulated_value = future_value_current_savings + future_value_monthly_savings
+            else:
+                estimated_accumulated_value = future_value_current_savings
+                
+            # Calculate total investment returns
+            total_contributions = current_savings + (monthly_savings_needed * months_until_vacation)
+            total_investment_returns = estimated_accumulated_value - total_contributions
+        else:
+            # Simple calculation without returns
+            monthly_savings_needed = remaining_amount / months_until_vacation
+            estimated_accumulated_value = inflation_adjusted_cost
+            total_investment_returns = 0
+        
+        # Generate month-wise data
+        month_wise_data = []
+        cumulative_savings = current_savings
+        total_investment_growth = 0
+        
+        for month in range(1, months_until_vacation + 1):
+            # Add monthly savings
+            monthly_contribution = monthly_savings_needed
+            cumulative_savings += monthly_contribution
+            
+            # Calculate investment growth for this month
+            if expected_return > 0:
+                # Growth on current balance + monthly contribution
+                previous_total = cumulative_savings - monthly_contribution + total_investment_growth
+                monthly_growth = (previous_total + monthly_contribution) * monthly_rate
+                total_investment_growth += monthly_growth
+            else:
+                monthly_growth = 0
+            
+            total_amount = cumulative_savings + total_investment_growth
+            progress = min((total_amount / inflation_adjusted_cost) * 100, 100)
+            
+            month_wise_data.append({
+                'month': month,
+                'monthly_savings': round(monthly_contribution, 2),
+                'cumulative_savings': round(cumulative_savings, 2),
+                'investment_growth': round(total_investment_growth, 2),
+                'total_amount': round(total_amount, 2),
+                'progress': round(progress, 1)
+            })
+        
+        return {
+            'vacation_cost': vacation_cost,
+            'inflation_adjusted_cost': round(inflation_adjusted_cost, 2),
+            'months_until_vacation': months_until_vacation,
+            'current_savings': current_savings,
+            'expected_return': expected_return,
+            'expected_inflation': expected_inflation,
+            'remaining_amount': round(remaining_amount, 2),
+            'monthly_savings_needed': round(monthly_savings_needed, 2),
+            'estimated_accumulated_value': round(estimated_accumulated_value, 2),
+            'total_investment_returns': round(total_investment_returns, 2),
+            'month_wise_data': month_wise_data
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error in vacation savings calculation: {str(e)}")
+
+@app.route('/calculate-vacation-savings', methods=['POST'])
+def calculate_vacation_savings_route():
+    try:
+        data = request.get_json()
+        
+        vacation_cost = float(data.get('vacation_cost', 0))
+        months_until_vacation = int(data.get('months_until_vacation', 1))
+        current_savings = float(data.get('current_savings', 0))
+        expected_return = float(data.get('expected_return', 0))
+        expected_inflation = float(data.get('expected_inflation', 6))
+        
+        # Validate inputs
+        if vacation_cost <= 0:
+            return jsonify({'status': 'error', 'error': 'Vacation cost must be greater than 0'}), 400
+            
+        if months_until_vacation <= 0:
+            return jsonify({'status': 'error', 'error': 'Months until vacation must be greater than 0'}), 400
+            
+        if current_savings < 0:
+            return jsonify({'status': 'error', 'error': 'Current savings cannot be negative'}), 400
+            
+        if current_savings > vacation_cost:
+            return jsonify({'status': 'error', 'error': 'Current savings cannot exceed vacation cost'}), 400
+            
+        if expected_return < 0 or expected_return > 30:
+            return jsonify({'status': 'error', 'error': 'Expected return must be between 0% and 30%'}), 400
+            
+        if expected_inflation < 0 or expected_inflation > 20:
+            return jsonify({'status': 'error', 'error': 'Expected inflation must be between 0% and 20%'}), 400
+        
+        # Calculate vacation savings plan
+        result = calculate_vacation_savings_planning(
+            vacation_cost, months_until_vacation, current_savings, expected_return, expected_inflation
+        )
+        
+        return jsonify({
+            'status': 'success',
+            **result
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 400
+
+@app.route('/pension-calculator/')
+def pension_retirement_calculator():
+    return render_template('pension_calculator.html')
+
+@app.route('/calculate-pension-requirements', methods=['POST'])
+def calculate_pension_requirements():
+    try:
+        data = request.get_json()
+        
+        # Input parameters
+        current_expenses = float(data.get('current_expenses', 0))
+        current_age = int(data.get('current_age', 25))
+        retirement_age = int(data.get('retirement_age', 60))
+        life_expectancy = int(data.get('life_expectancy', 85))
+        retirement_expense_ratio = float(data.get('retirement_expense_ratio', 100)) / 100
+        inflation_rate = float(data.get('inflation_rate', 6)) / 100
+        pre_retirement_return = float(data.get('pre_retirement_return', 8)) / 100
+        post_retirement_return = float(data.get('post_retirement_return', 6)) / 100
+        existing_savings = float(data.get('existing_savings', 0))
+        
+        # Validation
+        if current_age >= retirement_age:
+            return jsonify({'error': 'Current age must be less than retirement age'}), 400
+            
+        if retirement_age >= life_expectancy:
+            return jsonify({'error': 'Retirement age must be less than life expectancy'}), 400
+            
+        if current_expenses <= 0:
+            return jsonify({'error': 'Current monthly expenses must be greater than 0'}), 400
+        
+        # Calculate pension requirements
+        result = calculate_pension_needs(
+            current_expenses, current_age, retirement_age, life_expectancy,
+            retirement_expense_ratio, inflation_rate, pre_retirement_return,
+            post_retirement_return, existing_savings
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+def calculate_pension_needs(current_expenses, current_age, retirement_age, life_expectancy,
+                           retirement_expense_ratio, inflation_rate, pre_retirement_return,
+                           post_retirement_return, existing_savings):
+    """
+    Calculate pension planning requirements using standard financial formulas
+    """
+    
+    # Years calculations
+    years_to_retirement = retirement_age - current_age
+    retirement_years = life_expectancy - retirement_age
+    
+    # Calculate inflated monthly expenses at retirement
+    inflated_monthly_expenses = current_expenses * ((1 + inflation_rate) ** years_to_retirement) * retirement_expense_ratio
+    
+    # Calculate annual expenses at retirement
+    inflated_annual_expenses = inflated_monthly_expenses * 12
+    
+    # Calculate retirement corpus needed using present value of annuity formula
+    # For post-retirement returns adjusted for inflation
+    real_post_retirement_return = (1 + post_retirement_return) / (1 + inflation_rate) - 1
+    
+    if real_post_retirement_return <= 0:
+        # If real return is negative or zero, use simple multiplication
+        retirement_corpus_needed = inflated_annual_expenses * retirement_years
+    else:
+        # Present value of annuity formula: PV = PMT * [(1 - (1 + r)^-n) / r]
+        pv_factor = (1 - (1 + real_post_retirement_return) ** (-retirement_years)) / real_post_retirement_return
+        retirement_corpus_needed = inflated_annual_expenses * pv_factor
+    
+    # Adjust corpus for existing savings growth
+    existing_savings_future_value = existing_savings * ((1 + pre_retirement_return) ** years_to_retirement)
+    net_corpus_needed = retirement_corpus_needed - existing_savings_future_value
+    
+    # Calculate monthly savings required using future value of annuity formula
+    if net_corpus_needed <= 0:
+        monthly_savings_required = 0
+        annual_savings_required = 0
+    else:
+        # Future value of annuity formula: FV = PMT * [((1 + r)^n - 1) / r]
+        monthly_return = pre_retirement_return / 12
+        total_months = years_to_retirement * 12
+        
+        if monthly_return <= 0:
+            monthly_savings_required = net_corpus_needed / total_months
+        else:
+            fv_factor = ((1 + monthly_return) ** total_months - 1) / monthly_return
+            monthly_savings_required = net_corpus_needed / fv_factor
+        
+        annual_savings_required = monthly_savings_required * 12
+    
+    # Create year-wise breakdown for first 10 years
+    year_wise_data = []
+    cumulative_savings = existing_savings
+    
+    for year in range(1, min(years_to_retirement + 1, 11)):
+        annual_investment = annual_savings_required
+        opening_balance = cumulative_savings
+        growth = opening_balance * pre_retirement_return
+        closing_balance = opening_balance + annual_investment + growth
+        
+        year_wise_data.append({
+            'year': year,
+            'age': current_age + year,
+            'annual_investment': round(annual_investment),
+            'opening_balance': round(opening_balance),
+            'growth': round(growth),
+            'closing_balance': round(closing_balance),
+            'cumulative_investment': round(annual_investment * year + existing_savings)
+        })
+        
+        cumulative_savings = closing_balance
+    
+    # Summary calculation
+    total_investment_needed = annual_savings_required * years_to_retirement
+    summary_statement = f"To sustain ₹{format_currency_simple(inflated_monthly_expenses)}/month in retirement, you'll need a corpus of ₹{format_currency_simple(retirement_corpus_needed)} and must save ₹{format_currency_simple(monthly_savings_required)}/month."
+    
+    return {
+        'current_expenses': round(current_expenses),
+        'current_age': current_age,
+        'retirement_age': retirement_age,
+        'life_expectancy': life_expectancy,
+        'years_to_retirement': years_to_retirement,
+        'retirement_years': retirement_years,
+        'inflated_monthly_expenses': round(inflated_monthly_expenses),
+        'inflated_annual_expenses': round(inflated_annual_expenses),
+        'retirement_corpus_needed': round(retirement_corpus_needed),
+        'existing_savings_future_value': round(existing_savings_future_value),
+        'net_corpus_needed': round(max(0, net_corpus_needed)),
+        'monthly_savings_required': round(monthly_savings_required),
+        'annual_savings_required': round(annual_savings_required),
+        'total_investment_needed': round(total_investment_needed),
+        'summary_statement': summary_statement,
+        'year_wise_data': year_wise_data,
+        'retirement_expense_ratio': retirement_expense_ratio * 100,
+        'inflation_rate': inflation_rate * 100,
+        'pre_retirement_return': pre_retirement_return * 100,
+        'post_retirement_return': post_retirement_return * 100
+    }
+
+def format_currency_simple(amount):
+    """Simple currency formatting for summary statements"""
+    if amount >= 10000000:  # 1 crore
+        return f"{amount/10000000:.1f} Cr"
+    elif amount >= 100000:  # 1 lakh
+        return f"{amount/100000:.1f} L"
+    elif amount >= 1000:  # 1 thousand
+        return f"{amount/1000:.0f}K"
+    else:
+        return f"{amount:.0f}"
+
+# ELSS vs SIP Calculator Routes
+
+@app.route('/elss-vs-sip-calculator/')
+def elss_vs_sip_calculator():
+    return render_template('elss_vs_sip_calculator.html')
+
+@app.route('/calculate-elss-vs-sip', methods=['POST'])
+def calculate_elss_vs_sip():
+    try:
+        data = request.get_json()
+        
+        # Extract input parameters
+        monthly_investment = float(data.get('monthly_investment', 5000))
+        investment_duration = int(data.get('investment_duration', 10))
+        sip_return_rate = float(data.get('sip_return_rate', 12.0))
+        elss_return_rate = float(data.get('elss_return_rate', 14.0))
+        tax_slab = float(data.get('tax_slab', 30))
+        
+        # Validate inputs
+        if monthly_investment < 500 or monthly_investment > 50000:
+            return jsonify({'error': 'Monthly investment must be between ₹500 and ₹50,000'}), 400
+        
+        if investment_duration < 3 or investment_duration > 30:
+            return jsonify({'error': 'Investment duration must be between 3 and 30 years'}), 400
+        
+        if sip_return_rate < 5 or sip_return_rate > 25:
+            return jsonify({'error': 'SIP return rate must be between 5% and 25%'}), 400
+        
+        if elss_return_rate < 8 or elss_return_rate > 30:
+            return jsonify({'error': 'ELSS return rate must be between 8% and 30%'}), 400
+        
+        if tax_slab < 5 or tax_slab > 30:
+            return jsonify({'error': 'Tax slab must be between 5% and 30%'}), 400
+        
+        # Calculate comparison results
+        result = calculate_elss_vs_sip_comparison(
+            monthly_investment, investment_duration, 
+            sip_return_rate, elss_return_rate, tax_slab
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def calculate_elss_vs_sip_comparison(monthly_investment, investment_duration, sip_return_rate, elss_return_rate, tax_slab):
+    """
+    Calculate and compare ELSS vs Regular SIP investments
+    """
+    try:
+        annual_investment = monthly_investment * 12
+        total_months = investment_duration * 12
+        
+        # Convert annual rates to monthly
+        sip_monthly_rate = sip_return_rate / (12 * 100)
+        elss_monthly_rate = elss_return_rate / (12 * 100)
+        
+        # Calculate SIP future value using compound interest formula
+        # FV = PMT * [((1 + r)^n - 1) / r] * (1 + r)
+        if sip_monthly_rate > 0:
+            sip_final_value = monthly_investment * (((pow(1 + sip_monthly_rate, total_months) - 1) / sip_monthly_rate) * (1 + sip_monthly_rate))
+        else:
+            sip_final_value = monthly_investment * total_months
+        
+        # Calculate ELSS future value using compound interest formula
+        if elss_monthly_rate > 0:
+            elss_final_value = monthly_investment * (((pow(1 + elss_monthly_rate, total_months) - 1) / elss_monthly_rate) * (1 + elss_monthly_rate))
+        else:
+            elss_final_value = monthly_investment * total_months
+        
+        # Calculate tax benefits
+        # ELSS eligible for tax deduction up to ₹1.5 lakh per year under Section 80C
+        elss_eligible_for_tax = min(annual_investment, 150000)
+        annual_tax_saved = elss_eligible_for_tax * (tax_slab / 100)
+        total_tax_saved = annual_tax_saved * investment_duration
+        
+        # Net benefit calculation (ELSS value + tax saved - SIP value)
+        net_benefit = (elss_final_value + total_tax_saved) - sip_final_value
+        
+        # Year-wise breakdown
+        year_wise_data = []
+        sip_running_value = 0
+        elss_running_value = 0
+        cumulative_tax_saved = 0
+        
+        for year in range(1, investment_duration + 1):
+            # Calculate values at end of each year
+            months_completed = year * 12
+            
+            # SIP value at end of year
+            if sip_monthly_rate > 0:
+                sip_running_value = monthly_investment * (((pow(1 + sip_monthly_rate, months_completed) - 1) / sip_monthly_rate) * (1 + sip_monthly_rate))
+            else:
+                sip_running_value = monthly_investment * months_completed
+            
+            # ELSS value at end of year
+            if elss_monthly_rate > 0:
+                elss_running_value = monthly_investment * (((pow(1 + elss_monthly_rate, months_completed) - 1) / elss_monthly_rate) * (1 + elss_monthly_rate))
+            else:
+                elss_running_value = monthly_investment * months_completed
+            
+            # Cumulative tax saved
+            cumulative_tax_saved += annual_tax_saved
+            
+            year_wise_data.append({
+                'year': year,
+                'annual_investment': annual_investment,
+                'sip_value': round(sip_running_value),
+                'elss_value': round(elss_running_value),
+                'annual_tax_saved': round(annual_tax_saved),
+                'elss_advantage': round((elss_running_value + cumulative_tax_saved) - sip_running_value)
+            })
+        
+        return {
+            'monthly_investment': monthly_investment,
+            'investment_duration': investment_duration,
+            'sip_return_rate': sip_return_rate,
+            'elss_return_rate': elss_return_rate,
+            'tax_slab': tax_slab,
+            'annual_investment': annual_investment,
+            'sip_final_value': round(sip_final_value),
+            'elss_final_value': round(elss_final_value),
+            'total_tax_saved': round(total_tax_saved),
+            'net_benefit': round(net_benefit),
+            'annual_tax_saved': round(annual_tax_saved),
+            'elss_eligible_for_tax': elss_eligible_for_tax,
+            'year_wise_data': year_wise_data
+        }
+        
+    except Exception as e:
+        raise Exception(f"Error calculating ELSS vs SIP comparison: {str(e)}")
+
+@app.route('/capital-gains-calculator-with-and-without-tax-slabs/')
+def capital_gains_calculator_with_and_without_tax_slabs():
+    """
+    Capital Gains Calculator (With & Without Tax Slabs)
+    
+    Calculates capital gains tax for various asset types including:
+    - Equity shares and mutual funds
+    - Debt mutual funds
+    - Property
+    - Gold and unlisted shares
+    - Crypto (VDA)
+    
+    Features:
+    - STCG/LTCG classification based on holding period
+    - Indexation benefits where applicable
+    - Tax exemptions (Section 54/54F/54EC for property, LTCG exemptions for equity)
+    - Tax calculation with and without income tax slab impact
+    - Cess and surcharge calculations
+    """
+    return render_template('capital_gains_calculator_with_and_without_tax_slabs.html')
 
 if __name__ == '__main__':
     app.run(debug=True) 
