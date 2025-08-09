@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacation Saving Planner Calculator | Plan Your Dream Vacation</title>
+    <meta name="description" content="Plan your dream vacation with our comprehensive vacation saving calculator. Calculate monthly savings needed, investment returns, and reach your vacation goals on time.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vacation_saving_planner_calculator_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vacation Saving Planner Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/reverse-cagr-calculator/" class="mega-link">Reverse CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                                <a href="/ppf-calculator/" class="mega-link">PPF Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                                <a href="/vacation-saving-planner-calculator/" class="mega-link active">Vacation Saving Planner</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="calculator-container">
+            <div class="input-sections">
+                <!-- Vacation Saving Calculation Section -->
+                <div class="section">
+                    <h2>Plan Your Vacation Savings</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Total Vacation Cost</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="vacationCost" value="200000" min="10000" max="10000000" step="1000">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="vacationCostSlider" min="10000" max="1000000" value="200000" step="1000" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹10K</span>
+                                    <span>₹10L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Months Until Vacation</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="monthsUntilVacation" value="12" min="1" max="120" step="1">
+                                    <span class="input-suffix">Months</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="monthsUntilVacationSlider" min="1" max="60" value="12" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1 Month</span>
+                                    <span>5 Years</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Current Savings (Optional)</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="currentSavings" value="0" min="0" max="10000000" step="1000">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="currentSavingsSlider" min="0" max="500000" value="0" step="1000" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹0</span>
+                                    <span>₹5L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Expected Annual Return (Optional)</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="expectedReturn" value="0" min="0" max="25" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="expectedReturnSlider" min="0" max="15" value="0" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0%</span>
+                                    <span>15%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Expected Inflation in Price (p.a.)</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="expectedInflation" value="6" min="0" max="15" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="expectedInflationSlider" min="0" max="12" value="6" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0%</span>
+                                    <span>12%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vacation Date Input Section -->
+                <div class="section">
+                    <h2>Or Choose Vacation Date</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Vacation Date (Optional)</label>
+                                <div class="input-field-container">
+                                    <input type="date" id="vacationDate" min="">
+                                </div>
+                            </div>
+                            <div class="date-info" id="dateInfo">
+                                Select a date to auto-calculate months
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-card-grid">
+                    <div class="result-card inflation-adjusted-card">
+                        <div class="card-content">
+                            <div class="card-label bold-title">Inflation-Adjusted Vacation Cost</div>
+                            <div class="card-value" id="inflationAdjustedCostResult">₹2,00,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card remaining-amount-card">
+                        <div class="card-content">
+                            <div class="card-label">Remaining to Save</div>
+                            <div class="card-value" id="remainingAmountResult">₹2,00,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card monthly-savings-card">
+                        <div class="card-content">
+                            <div class="card-label">Monthly Savings Needed</div>
+                            <div class="card-value" id="monthlySavingsResult">₹16,667</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card accumulated-value-card">
+                        <div class="card-content">
+                            <div class="card-label">Estimated Future Value</div>
+                            <div class="card-value" id="accumulatedValueResult">₹2,00,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="summary-section">
+                    <div class="summary-text" id="summaryText">
+                        Save ₹16,667 per month to reach ₹2,00,000 in 12 months
+                    </div>
+                    <div class="summary-details" id="summaryDetails">
+                        Total vacation cost: ₹2,00,000 • Current savings: ₹0 • Timeline: 12 months
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">Vacation Savings Breakdown</div>
+                    <div class="pie-chart-container">
+                        <canvas id="vacationChart"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <div class="color-indicator monthly-savings"></div>
+                            <div class="summary-label">Monthly Savings</div>
+                            <div class="summary-amount" id="monthlySavingsDisplay">₹16,667</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="color-indicator current-savings"></div>
+                            <div class="summary-label">Current Savings</div>
+                            <div class="summary-amount" id="currentSavingsDisplay">₹0</div>
+                        </div>
+                        <div class="summary-item" id="returnsSummaryItem" style="display: none;">
+                            <div class="color-indicator investment-returns"></div>
+                            <div class="summary-label">Investment Returns</div>
+                            <div class="summary-amount" id="returnsDisplay">₹0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar Section -->
+                <div class="progress-section">
+                    <div class="progress-header">Savings Progress</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Current: <span id="progressCurrent">₹0</span></span>
+                            <span>Goal: <span id="progressGoal">₹2,00,000</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" onclick="downloadVacationPDF()">
+                        <span class="btn-icon">📄</span>
+                        Download PDF
+                    </button>
+                    <button class="action-btn table-btn" onclick="toggleVacationTable()">
+                        <span class="btn-icon">📊</span>
+                        View Timeline
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section hidden" id="vacationTableSection">
+            <div class="table-header">
+                <h2>Month-wise Savings Timeline</h2>
+            </div>
+            
+            <div class="table-container" id="vacationTimelineTable">
+                <div class="table-wrapper">
+                    <table class="amortization-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Monthly Savings</th>
+                                <th>Cumulative Savings</th>
+                                <th>Investment Growth</th>
+                                <th>Total Amount</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vacationTimelineTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/vacation_saving_planner_calculator_script.js') }}"></script>
+</body>
+</html>
