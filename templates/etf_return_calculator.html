@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETF Return Calculator | Calculate Exchange-Traded Fund Returns</title>
+    <meta name="description" content="Calculate ETF returns with our comprehensive Exchange-Traded Fund calculator. Analyze investment performance with historical data and growth projections.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/etf_return_calculator_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ETF Return Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/reverse-cagr-calculator/" class="mega-link">Reverse CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                                <a href="/etf-return-calculator/" class="mega-link active">ETF Return Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                                <a href="/ppf-calculator/" class="mega-link">PPF Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="calculator-container">
+            <div class="input-sections">
+                <!-- ETF Calculation Section -->
+                <div class="section">
+                    <h2>Calculate ETF Returns</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Select or Enter ETF Symbol</label>
+                            </div>
+                            <div class="etf-container">
+                                <div class="etf-input-wrapper">
+                                    <div class="input-field-container etf-input-field">
+                                        <input type="text" id="etfCustomInput" placeholder="Enter ETF symbol (e.g., NIFTY50, GOLDBEES)" maxlength="20">
+                                        <button type="button" id="etfDropdownToggle" class="dropdown-toggle-btn">
+                                            <span class="dropdown-arrow">▼</span>
+                                        </button>
+                                    </div>
+                                    <div class="etf-dropdown" id="etfDropdown">
+                                        <div class="etf-option" data-value="NIFTY50">
+                                            <div class="etf-name">Nifty 50 ETF</div>
+                                            <div class="etf-symbol">NIFTY50</div>
+                                        </div>
+                                        <div class="etf-option" data-value="BANKNIFTY">
+                                            <div class="etf-name">Bank Nifty ETF</div>
+                                            <div class="etf-symbol">BANKNIFTY</div>
+                                        </div>
+                                        <div class="etf-option" data-value="NIFTYIT">
+                                            <div class="etf-name">Nifty IT ETF</div>
+                                            <div class="etf-symbol">NIFTYIT</div>
+                                        </div>
+                                        <div class="etf-option" data-value="GOLDBEES">
+                                            <div class="etf-name">Gold BeES</div>
+                                            <div class="etf-symbol">GOLDBEES</div>
+                                        </div>
+                                        <div class="etf-option" data-value="LIQUIDBEES">
+                                            <div class="etf-name">Liquid BeES</div>
+                                            <div class="etf-symbol">LIQUIDBEES</div>
+                                        </div>
+                                        <div class="etf-option" data-value="NIFTYNEXT50">
+                                            <div class="etf-name">Nifty Next 50 ETF</div>
+                                            <div class="etf-symbol">NIFTYNEXT50</div>
+                                        </div>
+                                        <div class="etf-option" data-value="NIFTYMIDCAP">
+                                            <div class="etf-name">Nifty Midcap ETF</div>
+                                            <div class="etf-symbol">NIFTYMIDCAP</div>
+                                        </div>
+                                        <div class="etf-option" data-value="NIFTYSMLCAP">
+                                            <div class="etf-name">Nifty Smallcap ETF</div>
+                                            <div class="etf-symbol">NIFTYSMLCAP</div>
+                                        </div>
+                                        <div class="etf-option custom-option" data-value="CUSTOM">
+                                            <div class="etf-name">Custom ETF</div>
+                                            <div class="etf-symbol">Enter your own symbol</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="etf-info" id="etfInfo">
+                                    <small class="etf-description">Select an ETF from the dropdown or enter a custom symbol</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Amount</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="investmentAmount" value="100000" min="1000" max="10000000" step="1000">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="investmentAmountSlider" min="1000" max="10000000" value="100000" step="1000" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹1K</span>
+                                    <span>₹1Cr</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Time Period</label>
+                            </div>
+                            <div class="time-period-container">
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="timePeriod" value="1W" id="period1W">
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">1 Week</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="timePeriod" value="1M" id="period1M">
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">1 Month</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="timePeriod" value="1Y" id="period1Y" checked>
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">1 Year</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="timePeriod" value="3Y" id="period3Y">
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">3 Years</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="timePeriod" value="5Y" id="period5Y">
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">5 Years</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-card-grid">
+                    <div class="result-card total-investment-card">
+                        <div class="card-content">
+                            <div class="card-label bold-title">Total Investment</div>
+                            <div class="card-value" id="totalInvestmentResult">₹1,00,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card final-value-card">
+                        <div class="card-content">
+                            <div class="card-label">Final Value</div>
+                            <div class="card-value" id="finalValueResult">₹1,15,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card absolute-return-card">
+                        <div class="card-content">
+                            <div class="card-label">Absolute Return</div>
+                            <div class="card-value" id="absoluteReturnResult">₹15,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card return-percentage-card">
+                        <div class="card-content">
+                            <div class="card-label">Return (%)</div>
+                            <div class="card-value" id="returnPercentageResult">15.00%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">ETF Performance & Investment Growth</div>
+                    <div class="chart-container">
+                        <canvas id="etfChart"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <div class="color-indicator etf-price"></div>
+                            <div class="summary-label">ETF Price Growth</div>
+                            <div class="summary-amount" id="etfPriceDisplay">Track ETF performance</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="color-indicator investment-growth"></div>
+                            <div class="summary-label">₹1L Investment Growth</div>
+                            <div class="summary-amount" id="investmentGrowthDisplay">₹1,15,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" onclick="downloadETFPDF()">
+                        <span class="btn-icon">📄</span>
+                        Download PDF
+                    </button>
+                    <button class="action-btn calculate-btn" onclick="calculateETFReturns()">
+                        <span class="btn-icon">🔄</span>
+                        Recalculate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETF Information Section -->
+        <div class="info-section">
+            <div class="info-header">
+                <h2>About ETF Investments</h2>
+            </div>
+            <div class="info-content">
+                <div class="info-card">
+                    <h3>💡 What are ETFs?</h3>
+                    <p>Exchange-Traded Funds (ETFs) are investment funds that trade on stock exchanges like individual stocks. They track an index, commodity, bonds, or a basket of assets.</p>
+                </div>
+                <div class="info-card">
+                    <h3>📈 Key Benefits</h3>
+                    <ul>
+                        <li>Low expense ratios compared to mutual funds</li>
+                        <li>Real-time trading during market hours</li>
+                        <li>Diversification across multiple securities</li>
+                        <li>Tax efficiency and transparency</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>⚠️ Important Note</h3>
+                    <p>This calculator provides estimates based on historical data. Actual returns may vary significantly due to market volatility. Past performance does not guarantee future results.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/etf_return_calculator_script.js') }}"></script>
+</body>
+</html>

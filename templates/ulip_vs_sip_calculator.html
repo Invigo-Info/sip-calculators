@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULIP vs SIP Calculator | Compare Investment Returns</title>
+    <meta name="description" content="Compare ULIP vs SIP returns with our comprehensive calculator. Analyze tax benefits, insurance coverage, and investment growth with accurate calculations.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ulip_vs_sip_calculator_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ULIP vs SIP Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/reverse-cagr-calculator/" class="mega-link">Reverse CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/ulip-vs-sip-calculator/" class="mega-link active">ULIP vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                                <a href="/ppf-calculator/" class="mega-link">PPF Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="calculator-container">
+            <div class="input-sections">
+                <!-- Investment Parameters Section -->
+                <div class="section">
+                    <h2>Investment Parameters</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Monthly Investment Amount 
+                                    <span class="tooltip" data-tooltip="Amount you plan to invest every month">ⓘ</span>
+                                </label>
+                                <div class="input-field-container">
+                                    <input type="number" id="monthlyInvestmentUlipSip" value="10000" min="500" max="100000" step="500">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="monthlyInvestmentSliderUlipSip" min="500" max="100000" value="10000" step="500" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹500</span>
+                                    <span>₹1L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Tenure</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="tenureYearsUlipSip" value="15" min="5" max="30" step="1">
+                                    <span class="input-suffix">Years</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="tenureSliderUlipSip" min="5" max="30" value="15" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>5 Yrs</span>
+                                    <span>30 Yrs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIP Parameters Section -->
+                <div class="section">
+                    <h2>SIP Parameters</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">SIP Expected Return 
+                                    <span class="tooltip" data-tooltip="Annual return rate expected from SIP mutual funds">ⓘ</span>
+                                </label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipReturnRateUlipSip" value="12" min="1" max="25" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipReturnSliderUlipSip" min="1" max="25" value="12" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1%</span>
+                                    <span>25%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">SIP Expense Ratio 
+                                    <span class="tooltip" data-tooltip="Annual fee charged by mutual fund house for managing your investment">ⓘ</span>
+                                </label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipExpenseRatioUlipSip" value="1" min="0.1" max="3" step="0.05">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipExpenseSliderUlipSip" min="0.1" max="3" value="1" step="0.05" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0.1%</span>
+                                    <span>3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ULIP Parameters Section -->
+                <div class="section">
+                    <h2>ULIP Parameters</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">ULIP Expected Return</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="ulipReturnRateUlipSip" value="12" min="1" max="25" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="ulipReturnSliderUlipSip" min="1" max="25" value="12" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>1%</span>
+                                    <span>25%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">ULIP Fund Management Charges 
+                                    <span class="tooltip" data-tooltip="Annual charges for fund management in ULIP">ⓘ</span>
+                                </label>
+                                <div class="input-field-container">
+                                    <input type="number" id="ulipFMCUlipSip" value="1.35" min="0.5" max="3" step="0.05">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="ulipFMCSliderUlipSip" min="0.5" max="3" value="1.35" step="0.05" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0.5%</span>
+                                    <span>3%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">ULIP Other Charges 
+                                    <span class="tooltip" data-tooltip="Blended charges including allocation, admin, and mortality charges">ⓘ</span>
+                                </label>
+                                <div class="input-field-container">
+                                    <input type="number" id="ulipOtherChargesUlipSip" value="1.0" min="0.5" max="3" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="ulipOtherSliderUlipSip" min="0.5" max="3" value="1.0" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0.5%</span>
+                                    <span>3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insurance & Tax Section -->
+                <div class="section">
+                    <h2>Insurance & Tax Options</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="toggle-group">
+                                <label class="toggle-label">Include Term Insurance?
+                                    <span class="tooltip" data-tooltip="Add separate term insurance with SIP for fair comparison">ⓘ</span>
+                                </label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="includeTermUlipSip" checked>
+                                    <label for="includeTermUlipSip" class="switch-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group" id="termPremiumGroupUlipSip">
+                            <div class="input-row">
+                                <label class="input-label">Term Premium per Month</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="termPremiumUlipSip" value="700" min="100" max="5000" step="50">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="termPremiumSliderUlipSip" min="100" max="5000" value="700" step="50" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹100</span>
+                                    <span>₹5K</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Tax Model 
+                                    <span class="tooltip" data-tooltip="Tax treatment for gains from investments">ⓘ</span>
+                                </label>
+                            </div>
+                            <div class="tax-model-container">
+                                <select id="taxModelUlipSip" class="tax-model-select">
+                                    <option value="equity">Equity MF (LTCG 10% > ₹1L gain)</option>
+                                    <option value="debt">Debt MF</option>
+                                    <option value="ulip_exempt">ULIP Exempt (10(10D))</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-card-grid">
+                    <div class="result-card sip-card">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-title">SIP Investment</div>
+                                <div class="card-icon">📈</div>
+                            </div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Invested:</span>
+                                    <span class="detail-value" id="sipTotalInvestedUlipSip">₹18,00,000</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Future Value:</span>
+                                    <span class="detail-value" id="sipFutureValueUlipSip">₹59,75,396</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Estimated Tax:</span>
+                                    <span class="detail-value" id="sipEstimatedTaxUlipSip">₹3,67,540</span>
+                                </div>
+                                <div class="detail-row highlight">
+                                    <span class="detail-label">Post-Tax Value:</span>
+                                    <span class="detail-value" id="sipPostTaxValueUlipSip">₹56,07,856</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card sip-term-card" id="sipTermCardUlipSip">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-title">SIP + Term Plan</div>
+                                <div class="card-icon">🛡️</div>
+                            </div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">SIP Invested:</span>
+                                    <span class="detail-value" id="sipTermInvestedUlipSip">₹16,74,000</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Future Value:</span>
+                                    <span class="detail-value" id="sipTermFutureValueUlipSip">₹55,62,202</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Estimated Tax:</span>
+                                    <span class="detail-value" id="sipTermEstimatedTaxUlipSip">₹3,38,820</span>
+                                </div>
+                                <div class="detail-row highlight">
+                                    <span class="detail-label">Post-Tax Value:</span>
+                                    <span class="detail-value" id="sipTermPostTaxValueUlipSip">₹52,23,382</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card ulip-card">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-title">ULIP Investment</div>
+                                <div class="card-icon">🏦</div>
+                            </div>
+                            <div class="card-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Premiums:</span>
+                                    <span class="detail-value" id="ulipTotalPremiumsUlipSip">₹18,00,000</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Future Value:</span>
+                                    <span class="detail-value" id="ulipFutureValueUlipSip">₹56,32,478</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Tax Note:</span>
+                                    <span class="detail-value" id="ulipTaxNoteUlipSip">₹0 (Exempt)</span>
+                                </div>
+                                <div class="detail-row highlight">
+                                    <span class="detail-label">Net Payout:</span>
+                                    <span class="detail-value" id="ulipNetPayoutUlipSip">₹56,32,478</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Section -->
+                <div class="comparison-section">
+                    <div class="comparison-header">Investment Comparison</div>
+                    <div class="comparison-details">
+                        <div class="comparison-row">
+                            <span class="comparison-label">Best Option:</span>
+                            <span class="comparison-value best-option" id="bestOptionUlipSip">SIP Investment</span>
+                        </div>
+                        <div class="comparison-row">
+                            <span class="comparison-label">Cost Drag (SIP vs ULIP):</span>
+                            <span class="comparison-value" id="costDragUlipSip">-₹24,622 (-0.44%)</span>
+                        </div>
+                    </div>
+                    <div class="comparison-notes">
+                        <div class="note-item">
+                            <strong>ULIP Benefits:</strong> Includes life insurance coverage, 5-year lock-in period, partial withdrawal allowed after 5 years
+                        </div>
+                        <div class="note-item">
+                            <strong>SIP Benefits:</strong> Higher flexibility, no lock-in period, can be combined with separate term insurance for better coverage
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">Investment Growth Comparison</div>
+                    <div class="chart-container">
+                        <canvas id="ulipSipComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" onclick="downloadUlipSipPDF()">
+                        <span class="btn-icon">📄</span>
+                        Download PDF
+                    </button>
+                    <button class="action-btn table-btn" onclick="toggleUlipSipTable()">
+                        <span class="btn-icon">📊</span>
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section hidden" id="ulipSipTableSection">
+            <div class="table-header">
+                <h2>Year-wise Investment Breakdown</h2>
+            </div>
+            
+            <div class="table-container" id="ulipSipYearlyTable">
+                <div class="table-wrapper">
+                    <table class="amortization-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>SIP Value</th>
+                                <th>SIP Post-Tax</th>
+                                <th>SIP+Term Value</th>
+                                <th>SIP+Term Post-Tax</th>
+                                <th>ULIP Value</th>
+                                <th>Best Option</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ulipSipYearlyTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/ulip_vs_sip_calculator_script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELSS vs SIP Calculator | Compare ELSS Tax Benefits with Regular SIP</title>
+    <meta name="description" content="Compare ELSS vs Regular SIP investments with tax benefits calculation. Find out which option gives better returns including Section 80C tax savings.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/elss_vs_sip_calculator_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ELSS vs SIP Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/reverse-cagr-calculator/" class="mega-link">Reverse CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/elss-vs-sip-calculator/" class="mega-link active">ELSS vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                                <a href="/ppf-calculator/" class="mega-link">PPF Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="calculator-container">
+            <div class="input-sections">
+                <!-- ELSS vs SIP Calculation Section -->
+                <div class="section">
+                    <h2>Compare ELSS vs Regular SIP</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Monthly Investment</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="monthlyInvestmentElss" value="5000" min="500" max="50000" step="500">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="monthlyInvestmentElssSlider" min="500" max="50000" value="5000" step="500" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹500</span>
+                                    <span>₹50K</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Duration</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="investmentDurationElss" value="10" min="3" max="30" step="1">
+                                    <span class="input-suffix">Years</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="investmentDurationElssSlider" min="3" max="30" value="10" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>3 Yrs</span>
+                                    <span>30 Yrs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Expected Return in Regular SIP</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipReturnRateElss" value="12.0" min="8.0" max="20.0" step="0.5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipReturnRateElssSlider" min="8.0" max="20.0" value="12.0" step="0.5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>8%</span>
+                                    <span>20%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Expected Return in ELSS</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="elssReturnRateElss" value="14.0" min="10.0" max="22.0" step="0.5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="elssReturnRateElssSlider" min="10.0" max="22.0" value="14.0" step="0.5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>10%</span>
+                                    <span>22%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Income Tax Slab</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="taxSlabElss" value="30" min="5" max="30" step="5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="taxSlabElssSlider" min="5" max="30" value="30" step="5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>5%</span>
+                                    <span>30%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-card-grid">
+                    <div class="result-card sip-value-card">
+                        <div class="card-content">
+                            <div class="card-label">Regular SIP Final Value</div>
+                            <div class="card-value" id="sipFinalValueElssResult">₹15,25,864</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card elss-value-card">
+                        <div class="card-content">
+                            <div class="card-label">ELSS Final Value</div>
+                            <div class="card-value" id="elssFinalValueElssResult">₹19,47,235</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card tax-saved-card">
+                        <div class="card-content">
+                            <div class="card-label">Total Tax Saved via ELSS</div>
+                            <div class="card-value" id="taxSavedElssResult">₹1,80,000</div>
+                        </div>
+                    </div>
+
+                    <div class="result-card net-benefit-card">
+                        <div class="card-content">
+                            <div class="card-label bold-title">Net Benefit from ELSS</div>
+                            <div class="card-value" id="netBenefitElssResult">₹6,01,371</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">ELSS vs SIP Comparison</div>
+                    <div class="chart-container">
+                        <canvas id="elssVsSipChart"></canvas>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item">
+                            <div class="color-indicator sip-color"></div>
+                            <div class="summary-label">Regular SIP Value</div>
+                            <div class="summary-amount" id="sipFinalValueElssDisplay">₹15,25,864</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="color-indicator elss-color"></div>
+                            <div class="summary-label">ELSS Value</div>
+                            <div class="summary-amount" id="elssFinalValueElssDisplay">₹19,47,235</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="color-indicator tax-color"></div>
+                            <div class="summary-label">Tax Saved</div>
+                            <div class="summary-amount" id="taxSavedElssDisplay">₹1,80,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" onclick="downloadElssVsSipPDF()">
+                        <span class="btn-icon">📄</span>
+                        Download PDF
+                    </button>
+                    <button class="action-btn table-btn" onclick="toggleElssVsSipTable()">
+                        <span class="btn-icon">📊</span>
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section hidden" id="elssVsSipTableSection">
+            <div class="table-header">
+                <h2>Year-wise ELSS vs SIP Comparison</h2>
+            </div>
+            
+            <div class="table-container" id="elssVsSipYearlyTable">
+                <div class="table-wrapper">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Annual Investment</th>
+                                <th>Regular SIP Value</th>
+                                <th>ELSS Value</th>
+                                <th>Annual Tax Saved</th>
+                                <th>ELSS Advantage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="elssVsSipYearlyTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="info-section">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📊 What is ELSS?</h3>
+                    <p>Equity Linked Savings Scheme (ELSS) is a type of mutual fund that invests primarily in equity and equity-related instruments. It offers tax benefits under Section 80C of the Income Tax Act with a 3-year lock-in period.</p>
+                </div>
+                <div class="info-card">
+                    <h3>💰 Tax Benefits</h3>
+                    <p>ELSS investments are eligible for tax deduction up to ₹1.5 lakh per year under Section 80C. This calculator shows the additional benefit you get from tax savings compared to regular SIP investments.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🔒 Lock-in Period</h3>
+                    <p>ELSS funds have a mandatory 3-year lock-in period, which is the shortest among all tax-saving investments under Section 80C. Regular SIP investments have no lock-in period.</p>
+                </div>
+                <div class="info-card">
+                    <h3>📈 Risk Profile</h3>
+                    <p>Both ELSS and regular equity SIPs carry similar market risks as they invest in equity. ELSS funds may have slightly higher returns due to their focused investment approach.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/elss_vs_sip_calculator_script.js') }}"></script>
+</body>
+</html>

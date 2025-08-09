@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPS vs SIP Calculator | Compare National Pension Scheme with SIP Returns</title>
+    <meta name="description" content="Compare NPS vs SIP returns with our comprehensive calculator. Calculate tax benefits, lump sum, annuity, and pension amounts for informed investment decisions.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nps_vs_sip_calculator_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NPS vs SIP Calculator</h1>
+            <nav>
+                <a href="/" class="home-btn">Home</a>
+                <div class="mega-menu">
+                    <button class="mega-menu-btn">
+                        SIP CALCULATORS
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="mega-menu-content">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
+                                <a href="/" class="mega-link">SIP Calculator</a>
+                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
+                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
+                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
+                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
+                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
+                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
+                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
+                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
+                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
+                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
+                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
+                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
+                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>
+                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="mega-link">SIP with Inflation & Tax 2</a>
+                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
+                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
+                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
+                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
+                                <a href="/reverse-cagr-calculator/" class="mega-link">Reverse CAGR Calculator</a>
+                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
+                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
+                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
+                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
+                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
+                                <a href="/nps-vs-sip-calculator/" class="mega-link active">NPS vs SIP</a>
+                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
+                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
+                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
+                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
+                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
+                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
+                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
+                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
+                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
+                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
+                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
+                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
+                                <a href="/ppf-calculator/" class="mega-link">PPF Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
+                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
+                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
+                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
+                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
+                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
+                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
+                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
+                            </div>
+                            
+                            <div class="mega-menu-section">
+                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
+                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
+                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="calculator-container">
+            <div class="input-sections">
+                <!-- NPS vs SIP Calculation Section -->
+                <div class="section">
+                    <h2>Compare NPS vs SIP Investment</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Monthly Investment</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="monthlyInvestmentNpsSip" value="5000" min="500" max="200000" step="500">
+                                    <span class="input-suffix">₹</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="monthlyInvestmentNpsSipSlider" min="500" max="200000" value="5000" step="500" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>₹500</span>
+                                    <span>₹2L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Investment Duration</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="investmentDurationNpsSip" value="20" min="10" max="40" step="1">
+                                    <span class="input-suffix">Years</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="investmentDurationNpsSipSlider" min="10" max="40" value="20" step="1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>10 Yrs</span>
+                                    <span>40 Yrs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">SIP Expected Annual Return</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="sipReturnRateNpsSip" value="12" min="8" max="25" step="0.5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="sipReturnRateNpsSipSlider" min="8" max="25" value="12" step="0.5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>8%</span>
+                                    <span>25%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">NPS Expected Annual Return</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="npsReturnRateNpsSip" value="10" min="6" max="15" step="0.5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="npsReturnRateNpsSipSlider" min="6" max="15" value="10" step="0.5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>6%</span>
+                                    <span>15%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Income Tax Slab</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="taxSlabNpsSip" value="30" min="0" max="30" step="5">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="taxSlabNpsSipSlider" min="0" max="30" value="30" step="5" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>0%</span>
+                                    <span>30%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Apply 80CCD(1B) Tax Benefit</label>
+                                <div class="toggle-container">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="taxBenefitNpsSip" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="toggle-label">Enabled</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">NPS Exit Lump Sum</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="npsLumpSumNpsSip" value="60" min="60" max="60" step="1" readonly>
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">NPS Annuity</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="npsAnnuityNpsSip" value="40" min="40" max="40" step="1" readonly>
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-row">
+                                <label class="input-label">Annuity Rate</label>
+                                <div class="input-field-container">
+                                    <input type="number" id="annuityRateNpsSip" value="6.5" min="4" max="10" step="0.1">
+                                    <span class="input-suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="annuityRateNpsSipSlider" min="4" max="10" value="6.5" step="0.1" class="custom-slider">
+                                <div class="slider-track"></div>
+                                <div class="slider-labels">
+                                    <span>4%</span>
+                                    <span>10%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div class="results-grid">
+                    <!-- SIP Results -->
+                    <div class="result-section sip-section">
+                        <h3 class="section-title">SIP Investment Results</h3>
+                        <div class="results-card-grid">
+                            <div class="result-card sip-invested-card">
+                                <div class="card-content">
+                                    <div class="card-label">Total Invested</div>
+                                    <div class="card-value" id="sipTotalInvestedResult">₹12,00,000</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card sip-maturity-card">
+                                <div class="card-content">
+                                    <div class="card-label">Maturity Value</div>
+                                    <div class="card-value" id="sipMaturityValueResult">₹39,65,852</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card sip-ltcg-card">
+                                <div class="card-content">
+                                    <div class="card-label">Estimated LTCG Tax</div>
+                                    <div class="card-value" id="sipLtcgTaxResult">₹2,76,585</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card sip-post-tax-card">
+                                <div class="card-content">
+                                    <div class="card-label">Post-Tax Value</div>
+                                    <div class="card-value" id="sipPostTaxValueResult">₹36,89,267</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NPS Results -->
+                    <div class="result-section nps-section">
+                        <h3 class="section-title">NPS Investment Results</h3>
+                        <div class="results-card-grid">
+                            <div class="result-card nps-invested-card">
+                                <div class="card-content">
+                                    <div class="card-label">Total Invested</div>
+                                    <div class="card-value" id="npsTotalInvestedResult">₹12,00,000</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card nps-maturity-card">
+                                <div class="card-content">
+                                    <div class="card-label">Maturity Value</div>
+                                    <div class="card-value" id="npsMaturityValueResult">₹30,38,554</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card nps-lump-sum-card">
+                                <div class="card-content">
+                                    <div class="card-label">Tax-free Lump Sum (60%)</div>
+                                    <div class="card-value" id="npsLumpSumResult">₹18,23,132</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card nps-annuity-card">
+                                <div class="card-content">
+                                    <div class="card-label">Annuity Corpus (40%)</div>
+                                    <div class="card-value" id="npsAnnuityCorpusResult">₹12,15,422</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card nps-pension-card">
+                                <div class="card-content">
+                                    <div class="card-label">Monthly Pension</div>
+                                    <div class="card-value" id="npsMonthlyPensionResult">₹6,584</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tax Benefits -->
+                    <div class="result-section tax-section">
+                        <h3 class="section-title">Tax Benefits (80CCD1B)</h3>
+                        <div class="results-card-grid">
+                            <div class="result-card tax-yearly-card">
+                                <div class="card-content">
+                                    <div class="card-label">Annual Tax Saved</div>
+                                    <div class="card-value" id="annualTaxSavedResult">₹15,000</div>
+                                </div>
+                            </div>
+
+                            <div class="result-card tax-total-card">
+                                <div class="card-content">
+                                    <div class="card-label">Total Tax Saved</div>
+                                    <div class="card-value" id="totalTaxSavedResult">₹3,00,000</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Summary -->
+                <div class="comparison-summary">
+                    <h3 class="summary-title">Investment Comparison Summary</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card winner-card">
+                            <div class="summary-content">
+                                <div class="summary-label">Higher Returns</div>
+                                <div class="summary-value" id="winnerOptionResult">SIP</div>
+                                <div class="summary-difference" id="returnDifferenceResult">+₹6,50,713</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card liquidity-card">
+                            <div class="summary-content">
+                                <div class="summary-label">Key Difference</div>
+                                <div class="summary-description" id="keyDifferenceResult">
+                                    SIP offers better liquidity and higher returns, while NPS provides tax benefits and guaranteed pension income stream.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">NPS vs SIP Comparison</div>
+                    <div class="chart-container">
+                        <canvas id="npsVsSipChart"></canvas>
+                    </div>
+                    <div class="chart-note">
+                        <p><strong>Note:</strong> SIP values shown are post-tax. NPS pension is ongoing and will be taxable as per income tax slab at retirement.</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" onclick="downloadNpsSipPDF()">
+                        <span class="btn-icon">📄</span>
+                        Download PDF
+                    </button>
+                    <button class="action-btn table-btn" onclick="toggleNpsSipTable()">
+                        <span class="btn-icon">📊</span>
+                        View Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-section hidden" id="npsSipTableSection">
+            <div class="table-header">
+                <h2>Year-wise NPS vs SIP Breakdown</h2>
+            </div>
+            
+            <div class="table-container" id="npsSipYearlyTable">
+                <div class="table-wrapper">
+                    <table class="amortization-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Annual Investment</th>
+                                <th>SIP Value</th>
+                                <th>NPS Value</th>
+                                <th>Tax Saved (NPS)</th>
+                                <th>SIP vs NPS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="npsSipYearlyTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/nps_vs_sip_calculator_script.js') }}"></script>
+</body>
+</html>
