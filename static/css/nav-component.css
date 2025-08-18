@@ -1,0 +1,321 @@
+/* Reusable Navigation Component CSS */
+/* Include this CSS file in your HTML pages after your main stylesheet */
+
+/* Navigation Styles */
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Mega Menu Styles */
+.mega-menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Home Button */
+.home-btn {
+    background: #3182ce;
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.home-btn:hover {
+    background: #2c5282;
+    color: white;
+}
+
+/* Mega Menu Button */
+.mega-menu-btn {
+    background: #3182ce;
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.mega-menu-btn:hover {
+    background: #2c5282;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.mega-menu.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Mega Menu Content - Higher specificity to override existing styles */
+.mega-menu .mega-menu-content {
+    display: none !important;
+    position: absolute;
+    background: white;
+    min-width: 780px;
+    max-width: 900px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    z-index: 1000;
+    border-radius: 8px;
+    padding: 0;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 6px;
+    border: 1px solid #e2e8f0;
+    backdrop-filter: blur(10px);
+}
+
+.mega-menu.open .mega-menu-content {
+    display: block !important;
+    animation: sleekSlideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sleekSlideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* Mega Menu Container */
+.mega-menu-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0;
+    padding: 18px;
+}
+
+/* Mega Menu Sections */
+.mega-menu-section {
+    padding: 0 14px;
+    border-right: 1px solid #f1f5f9;
+}
+
+.mega-menu-section:last-child {
+    border-right: none;
+}
+
+.mega-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+/* Mega Menu Links */
+.mega-link {
+    display: block;
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+}
+
+.mega-link:hover {
+    background: #f8fafc;
+    color: #334155;
+    transform: translateX(2px);
+}
+
+.mega-link.active {
+    background: linear-gradient(135deg, #3182ce, #2563eb);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.mega-link.active:hover {
+    transform: translateX(2px);
+    box-shadow: 0 3px 12px rgba(59, 130, 246, 0.35);
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .mega-menu-content {
+        min-width: 95vw;
+        max-width: 95vw;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .mega-menu-container {
+        grid-template-columns: repeat(1, 1fr) !important;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .mega-menu-section {
+        border-right: none;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 0 0 15px 0;
+        margin-bottom: 15px;
+    }
+    
+    .mega-menu-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-btn,
+    .mega-menu-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+    
+    .mega-menu-container {
+        grid-template-columns: repeat(1, 1fr) !important;
+        padding: 12px;
+    }
+}
+
+/* JavaScript Toggle Functionality */
+/* Add this JavaScript to your page for dropdown functionality:
+
+document.addEventListener('DOMContentLoaded', function() {
+    const megaMenu = document.querySelector('.mega-menu');
+    const megaMenuBtn = document.querySelector('.mega-menu-btn');
+    
+    megaMenuBtn.addEventListener('click', function() {
+        megaMenu.classList.toggle('open');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!megaMenu.contains(e.target)) {
+            megaMenu.classList.remove('open');
+        }
+    });
+});
+
+*/
+
+
+/* Hide dropdown by default with ultimate specificity */
+        div.container header nav .mega-menu .mega-menu-content {
+            display: none !important;
+            position: absolute !important;
+            background: white !important;
+            min-width: 780px !important;
+            max-width: 900px !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+            z-index: 1000 !important;
+            border-radius: 8px !important;
+            padding: 0 !important;
+            top: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin-top: 6px !important;
+            border: 1px solid #e2e8f0 !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        /* Show dropdown when open class is present */
+        div.container header nav .mega-menu.open .mega-menu-content {
+            display: block !important;
+            animation: slideDown 0.3s ease-out !important;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        /* Ensure grid layout works */
+        div.container header nav .mega-menu .mega-menu-container {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0 !important;
+            padding: 16px !important;
+        }
+        
+        /* Test visibility with colored background when open */
+        div.container header nav .mega-menu.open .mega-menu-content {
+            /* background: #f0f9ff !important; */
+            /* border: 2px solid #3182ce !important; */
+            background: white !important; 
+            border: 1px solid #e2e8f0 !important; 
+        }
+        
+        /* Responsive */
+        @media (max-width: 767px) {
+            div.container header nav .mega-menu .mega-menu-content {
+                min-width: 95vw !important;
+                max-width: 95vw !important;
+            }
+            
+            div.container header nav .mega-menu .mega-menu-container {
+                grid-template-columns: repeat(1, 1fr) !important;
+                gap: 15px !important;
+                padding: 15px !important;
+                padding: 12px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .home-btn,
+            .mega-menu-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                min-height: 40px;
+            }
+            
+            .mega-menu-container {
+                grid-template-columns: repeat(1, 1fr) !important;
+                padding: 12px;
+            }
+        }
