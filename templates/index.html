@@ -4,106 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIP Calculator with Inflation | Calculate Mutual Fund SIP Returns</title>
+        <!-- Navigation component CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav-component.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sip_calculator_style.css') }}">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- DEFINITIVE navigation styles - maximum specificity -->
+    <!-- <style>
+        /* Hide dropdown by default with ultimate specificity */
+        div.container header nav .mega-menu .mega-menu-content {
+            display: none !important;
+            position: absolute !important;
+            background: white !important;
+            min-width: 780px !important;
+            max-width: 900px !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+            z-index: 1000 !important;
+            border-radius: 8px !important;
+            padding: 0 !important;
+            top: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin-top: 6px !important;
+            border: 1px solid #e2e8f0 !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        /* Show dropdown when open class is present */
+        div.container header nav .mega-menu.open .mega-menu-content {
+            display: block !important;
+            animation: slideDown 0.3s ease-out !important;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        /* Ensure grid layout works */
+        div.container header nav .mega-menu .mega-menu-container {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0 !important;
+            padding: 16px !important;
+        }
+        
+        /* Test visibility with colored background when open */
+        div.container header nav .mega-menu.open .mega-menu-content {
+            /* background: #f0f9ff !important; */
+            /* border: 2px solid #3182ce !important; */
+            background: white !important; 
+            border: 1px solid #e2e8f0 !important; 
+        }
+        
+        /* Responsive */
+        @media (max-width: 767px) {
+            div.container header nav .mega-menu .mega-menu-content {
+                min-width: 95vw !important;
+                max-width: 95vw !important;
+            }
+            
+            div.container header nav .mega-menu .mega-menu-container {
+                grid-template-columns: repeat(1, 1fr) !important;
+                gap: 15px !important;
+                padding: 15px !important;
+                padding: 12px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .home-btn,
+            .mega-menu-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                min-height: 40px;
+            }
+            
+            .mega-menu-container {
+                grid-template-columns: repeat(1, 1fr) !important;
+                padding: 12px;
+            }
+        }
+        
+    </style> -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Complete self-contained navigation script -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a moment to ensure all other scripts have loaded
+            setTimeout(function() {
+                const megaMenuBtn = document.querySelector('.mega-menu-btn');
+                const megaMenu = document.querySelector('.mega-menu');
+                const megaMenuContent = document.querySelector('.mega-menu-content');
+                
+                console.log('=== NAVIGATION DEBUG ===');
+                console.log('Button found:', !!megaMenuBtn);
+                console.log('Menu container found:', !!megaMenu);
+                console.log('Menu content found:', !!megaMenuContent);
+                
+                if (megaMenuBtn && megaMenu) {
+                    // Remove any existing event listeners
+                    const newBtn = megaMenuBtn.cloneNode(true);
+                    megaMenuBtn.parentNode.replaceChild(newBtn, megaMenuBtn);
+                    
+                    // Add fresh event listener
+                    newBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log('=== BUTTON CLICKED ===');
+                        console.log('Before toggle - has open class:', megaMenu.classList.contains('open'));
+                        
+                        // Force toggle the class
+                        if (megaMenu.classList.contains('open')) {
+                            megaMenu.classList.remove('open');
+                            console.log('Removed open class');
+                        } else {
+                            megaMenu.classList.add('open');
+                            console.log('Added open class');
+                        }
+                        
+                        console.log('After toggle - has open class:', megaMenu.classList.contains('open'));
+                        console.log('Menu content display style:', window.getComputedStyle(megaMenuContent).display);
+                    });
+                    
+                    // Close on outside click
+                    document.addEventListener('click', function(e) {
+                        if (!megaMenu.contains(e.target)) {
+                            megaMenu.classList.remove('open');
+                            console.log('Closed menu via outside click');
+                        }
+                    });
+                    
+                    console.log('Navigation initialized successfully!');
+                } else {
+                    console.error('Navigation elements not found!');
+                }
+            }, 100);
+        });
+    </script> -->
 </head>
 <body>
     <div class="container">
         <header>
             <h1>SIP Calculator with Inflation</h1>
-            <nav>
-                <a href="/" class="home-btn">Home</a>
-                <div class="mega-menu">
-                    <button class="mega-menu-btn">
-                        SIP CALCULATORS
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="mega-menu-content">
-                        <div class="mega-menu-container">
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">📊 Basic SIP Calculators</h3>
-                                <a href="/" class="mega-link active">SIP Calculator</a>
-                                <a href="/daily-sip-calculator/" class="mega-link">Daily SIP Calculator</a>
-                                <a href="/monthly-sip-calculator/" class="mega-link">Monthly SIP Calculator</a>
-                                <a href="/quarterly-sip-calculator/" class="mega-link">Quarterly SIP Calculator</a>
-                                <a href="/yearly-sip-calculator/" class="mega-link">Yearly SIP Calculator</a>
-                                <a href="/lump-sum-or-one-time-sip-calculator/" class="mega-link">Lump Sum SIP Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">🚀 Advanced SIP Calculators</h3>
-                                <a href="/step-up-sip-calculator/" class="mega-link">Step Up SIP Calculator</a>
-                                <a href="/goal-sip-calculator/" class="mega-link">Goal SIP Calculator</a>
-                                <a href="/reverse-sip-calculator/" class="mega-link">Reverse SIP Calculator</a>
-                                <a href="/sip-delay-calculator/" class="mega-link">SIP Delay Calculator</a>
-                                <a href="/swp-calculator/" class="mega-link">SWP Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">💰 SIP with Fees & Tax</h3>
-                                <a href="/sip-calculator-with-expense-ratio/" class="mega-link">SIP with Expense Ratio</a>
-                                <a href="/sip-calculator-with-inflation/" class="mega-link">SIP with Inflation</a>
-                                <a href="/sip-calculator-with-inflation-and-tax/" class="mega-link">SIP with Inflation & Tax</a>                                
-                                <a href="/sip-exit-load-calculator/" class="mega-link">SIP Exit Load Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">🎯 Specialized SIP</h3>
-                                <a href="/elss-sip-calculator/" class="mega-link">ELSS SIP Calculator</a>
-                                <a href="/gold-sip-calculator/" class="mega-link">Gold SIP Calculator</a>
-                                <a href="/cagr-sip-calculator/" class="mega-link">CAGR Calculator</a>
-                                <a href="/index-fund-calculator/" class="mega-link">Index Fund Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">⚖️ SIP Comparison Tools</h3>
-                                <a href="/lumpsum-vs-sip-calculator/" class="mega-link">Lumpsum vs SIP</a>
-                                <a href="/fd-vs-sip-calculator/" class="mega-link">FD vs SIP</a>
-                                <a href="/rd-vs-sip-calculator/" class="mega-link">RD vs SIP</a>
-                                <a href="/ppf-vs-sip-calculator/" class="mega-link">PPF vs SIP</a>
-                                <a href="/sip-calculator-vs-interest-calculator/" class="mega-link">SIP vs Interest</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">📈 Analysis & Fee Tools</h3>
-                                <a href="/expense-ratio-calculator/" class="mega-link">Expense Ratio Calculator</a>
-                                <a href="/mutual-funds-expense-ratio-calculator/" class="mega-link">Mutual Fund Expense Ratio</a>
-                                <a href="/exit-load-calculator/" class="mega-link">Exit Load Calculator</a>
-                                <a href="/roi-calculator/" class="mega-link">ROI Calculator</a>
-                                <a href="/xirr-calculator/" class="mega-link">XIRR Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">🏦 Investment Tools</h3>
-                                <a href="/fd-calculator/" class="mega-link">FD Calculator</a>
-                                <a href="/rd-calculator/" class="mega-link">RD Calculator</a>
-                                <a href="/epf-calculator/" class="mega-link">EPF Calculator</a>
-                                <a href="/nps-calculator/" class="mega-link">NPS Calculator</a>
-                                <a href="/compound-interest-calculator/" class="mega-link">Compound Interest Calculator</a>
-                                <a href="/inflation-calculator/" class="mega-link">Inflation Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">🏛️ Government Schemes</h3>
-                                <a href="/sukanya-samriddhi-yojana-calculator/" class="mega-link">SSY Calculator</a>
-                                <a href="/atal-pension-yojana-calculator/" class="mega-link">APY Calculator</a>
-                                <a href="/kisan-vikas-patra-calculator/" class="mega-link">Kisan Vikas Patra</a>
-                                <a href="/national-savings-certificate-calculator/" class="mega-link">NSC Calculator</a>
-                                <a href="/post-office-monthly-income-scheme-calculator/" class="mega-link">POMIS Calculator</a>
-                                <a href="/senior-citizen-savings-scheme-calculator/" class="mega-link">SCSS Calculator</a>
-                                <a href="/gratuity-calculator/" class="mega-link">Gratuity Calculator</a>
-                            </div>
-                            
-                            <div class="mega-menu-section">
-                                <h3 class="mega-section-title">📊 Stock & Analysis</h3>
-                                <a href="/stock-average-calculator/" class="mega-link">Stock Average Calculator</a>
-                                <a href="/stock-return-calculator/" class="mega-link">Stock Return Calculator</a>                                
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {% include 'navigation.html' %}
+            
         </header>
 
         <div class="calculator-container">
@@ -309,6 +362,8 @@
         </div>
     </div>
 
+    <!-- Navigation component JavaScript -->
+    <script src="{{ url_for('static', filename='js/nav-component.js') }}"></script>
     <script src="{{ url_for('static', filename='js/sip_calculator_script.js') }}"></script>
 </body>
 </html> 
