@@ -822,7 +822,7 @@ nav {
         flex-direction: column;
         gap: 10px;
     }
-    
+    .home-btn,
     .mega-menu-btn {
         width: 100%;
         justify-content: center;
