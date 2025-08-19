@@ -666,8 +666,7 @@ button {
     }
 }
 
-@media (max-width: 768px) {
-    .home-btn,
+@media (max-width: 768px) {    
     .mega-menu-btn {
         width: 100%;
         justify-content: center;
