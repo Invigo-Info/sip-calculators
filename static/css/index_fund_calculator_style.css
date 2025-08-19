@@ -667,9 +667,11 @@ button {
 }
 
 @media (max-width: 768px) {
+    .home-btn,
     .mega-menu-btn {
-        font-size: 12px;
-        padding: 10px 16px;
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
     }
 
     .mega-menu-content {
