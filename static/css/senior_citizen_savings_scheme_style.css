@@ -644,65 +644,6 @@ nav {
         justify-content: center;
     }
 
-    .mega-menu-content {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: white;
-        z-index: 9999;
-    }
-
-    .mega-menu.open .mega-menu-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .mega-menu-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        max-height: 80vh;
-        overflow-y: auto;
-        padding: 30px;
-    }
-
-    .mega-menu-section {
-        border-right: none;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 0 0 15px 0;
-    }
-
-    .mega-menu-section:last-child {
-        border-bottom: none;
-    }
-
-    .mega-section-title {
-        font-size: 14px;
-    }
-
-    .mega-link {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-
-    .mega-link:hover {
-        transform: none;
-    }
-
-    .mega-link.active {
-        transform: none;
-    }
-
-    .mega-link.active:hover {
-        transform: none;
-    }
-
-    .nav-link {
-        padding: 10px 15px;
-    }
-
     header h1 {
         font-size: 1.8rem;
     }
