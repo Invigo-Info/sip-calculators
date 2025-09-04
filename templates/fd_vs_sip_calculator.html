@@ -337,7 +337,15 @@
     </div>
 
     <!-- Loading and Notification Elements -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Calculating...</p>
+    </div>
 
+    <div id="notification" class="notification">
+        <span id="notificationMessage"></span>
+        <button id="notificationClose">&times;</button>
+    </div>
 
     <!-- JavaScript -->
      <script src="{{ url_for('static', filename='js/nav-component.js') }}"></script>
