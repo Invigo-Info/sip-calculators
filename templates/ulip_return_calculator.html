@@ -5,112 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ULIP Return Calculator | Calculate Unit Linked Insurance Plan Returns</title>
     <meta name="description" content="Calculate ULIP returns with our comprehensive Unit Linked Insurance Plan calculator. Plan your long-term investments with accurate maturity value calculations for both regular and one-time investments.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav-component.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ulip_return_calculator_style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <div class="ulip-container">
+    <div class="container">
         <header>
             <h1>ULIP Return Calculator</h1>
-            <nav>
-                <a href="/" class="ulip-home-btn">Home</a>
-                <div class="ulip-mega-menu">
-                    <button class="ulip-mega-menu-btn">
-                        SIP CALCULATORS
-                        <span class="ulip-dropdown-arrow">▼</span>
-                    </button>
-                    <div class="ulip-mega-menu-content">
-                        <div class="ulip-mega-menu-container">
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">📊 Basic SIP Calculators</h3>
-                                <a href="/" class="ulip-mega-link">SIP Calculator</a>
-                                <a href="/daily-sip-calculator/" class="ulip-mega-link">Daily SIP Calculator</a>
-                                <a href="/monthly-sip-calculator/" class="ulip-mega-link">Monthly SIP Calculator</a>
-                                <a href="/quarterly-sip-calculator/" class="ulip-mega-link">Quarterly SIP Calculator</a>
-                                <a href="/yearly-sip-calculator/" class="ulip-mega-link">Yearly SIP Calculator</a>
-                                <a href="/lump-sum-or-one-time-sip-calculator/" class="ulip-mega-link">Lump Sum SIP Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">🚀 Advanced SIP Calculators</h3>
-                                <a href="/step-up-sip-calculator/" class="ulip-mega-link">Step Up SIP Calculator</a>
-                                <a href="/goal-sip-calculator/" class="ulip-mega-link">Goal SIP Calculator</a>
-                                <a href="/reverse-sip-calculator/" class="ulip-mega-link">Reverse SIP Calculator</a>
-                                <a href="/sip-delay-calculator/" class="ulip-mega-link">SIP Delay Calculator</a>
-                                <a href="/swp-calculator/" class="ulip-mega-link">SWP Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">💰 SIP with Fees & Tax</h3>
-                                <a href="/sip-calculator-with-expense-ratio/" class="ulip-mega-link">SIP with Expense Ratio</a>
-                                <a href="/sip-calculator-with-inflation/" class="ulip-mega-link">SIP with Inflation</a>
-                                <a href="/sip-calculator-with-inflation-and-tax/" class="ulip-mega-link">SIP with Inflation & Tax</a>
-                                <a href="/sip-calculator-with-inflation-and-tax-2/" class="ulip-mega-link">SIP with Inflation & Tax 2</a>
-                                <a href="/sip-exit-load-calculator/" class="ulip-mega-link">SIP Exit Load Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">🎯 Specialized SIP</h3>
-                                <a href="/elss-sip-calculator/" class="ulip-mega-link">ELSS SIP Calculator</a>
-                                <a href="/gold-sip-calculator/" class="ulip-mega-link">Gold SIP Calculator</a>
-                                <a href="/cagr-sip-calculator/" class="ulip-mega-link">CAGR Calculator</a>
-                                <a href="/reverse-cagr-calculator/" class="ulip-mega-link">Reverse CAGR Calculator</a>
-                                <a href="/index-fund-calculator/" class="ulip-mega-link">Index Fund Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">⚖️ SIP Comparison Tools</h3>
-                                <a href="/lumpsum-vs-sip-calculator/" class="ulip-mega-link">Lumpsum vs SIP</a>
-                                <a href="/fd-vs-sip-calculator/" class="ulip-mega-link">FD vs SIP</a>
-                                <a href="/rd-vs-sip-calculator/" class="ulip-mega-link">RD vs SIP</a>
-                                <a href="/ppf-vs-sip-calculator/" class="ulip-mega-link">PPF vs SIP</a>
-                                <a href="/sip-calculator-vs-interest-calculator/" class="ulip-mega-link">SIP vs Interest</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">📈 Analysis & Fee Tools</h3>
-                                <a href="/expense-ratio-calculator/" class="ulip-mega-link">Expense Ratio Calculator</a>
-                                <a href="/mutual-funds-expense-ratio-calculator/" class="ulip-mega-link">Mutual Fund Expense Ratio</a>
-                                <a href="/exit-load-calculator/" class="ulip-mega-link">Exit Load Calculator</a>
-                                <a href="/roi-calculator/" class="ulip-mega-link">ROI Calculator</a>
-                                <a href="/xirr-calculator/" class="ulip-mega-link">XIRR Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">🏦 Investment Tools</h3>
-                                <a href="/fd-calculator/" class="ulip-mega-link">FD Calculator</a>
-                                <a href="/rd-calculator/" class="ulip-mega-link">RD Calculator</a>
-                                <a href="/epf-calculator/" class="ulip-mega-link">EPF Calculator</a>
-                                <a href="/nps-calculator/" class="ulip-mega-link">NPS Calculator</a>
-                                <a href="/compound-interest-calculator/" class="ulip-mega-link">Compound Interest Calculator</a>
-                                <a href="/inflation-calculator/" class="ulip-mega-link">Inflation Calculator</a>
-                                <a href="/ppf-calculator/" class="ulip-mega-link">PPF Calculator</a>
-                                <a href="/ulip-return-calculator/" class="ulip-mega-link active">ULIP Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">🏛️ Government Schemes</h3>
-                                <a href="/sukanya-samriddhi-yojana-calculator/" class="ulip-mega-link">SSY Calculator</a>
-                                <a href="/atal-pension-yojana-calculator/" class="ulip-mega-link">APY Calculator</a>
-                                <a href="/kisan-vikas-patra-calculator/" class="ulip-mega-link">Kisan Vikas Patra</a>
-                                <a href="/national-savings-certificate-calculator/" class="ulip-mega-link">NSC Calculator</a>
-                                <a href="/post-office-monthly-income-scheme-calculator/" class="ulip-mega-link">POMIS Calculator</a>
-                                <a href="/senior-citizen-savings-scheme-calculator/" class="ulip-mega-link">SCSS Calculator</a>
-                                <a href="/gratuity-calculator/" class="ulip-mega-link">Gratuity Calculator</a>
-                            </div>
-                            
-                            <div class="ulip-mega-menu-section">
-                                <h3 class="ulip-mega-section-title">📊 Stock & Analysis</h3>
-                                <a href="/stock-average-calculator/" class="ulip-mega-link">Stock Average Calculator</a>
-                                <a href="/stock-return-calculator/" class="ulip-mega-link">Stock Return Calculator</a>
-                               
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {% include 'navigation.html' %}
         </header>
 
         <div class="ulip-calculator-container">
@@ -338,7 +243,7 @@
             </div>
         </div>
     </div>
-
+    <script src="{{ url_for('static', filename='js/nav-component.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ulip_return_calculator_script.js') }}"></script>
 </body>
 </html>
